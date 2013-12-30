@@ -1,0 +1,2 @@
+include CHANGES.md LICENSE
+recursive-include docs *.md

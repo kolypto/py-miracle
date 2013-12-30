@@ -36,9 +36,8 @@ Define The Structure
 To start using miracle, instantiate the `Acl` object:
 
 ```js
-var Acl = require('miracle').Acl;
-
-var acl = new Acl();
+from acl import Acl
+acl = Acl()
 ```
 
 The `Acl` object keeps track of your *resources* and *permissions* defined on them, handles *grants* over *roles* and
@@ -54,137 +53,121 @@ implicitly creates all resources and permissions that were not previously define
 Start with defining the *resources* and *permissions* on them, then you can grant a *role* with the access to some
 permissions on a resource.
 
-#### `addRole(roles)`
-Define role[s].
+For roles, resources & permissions, any hashable object will do.
 
-* `roles`: the role[s] to define.
+#### `add_role(role)`
+Define a role.
 
-The role will have no permissions granted, but will appear in `listRoles()`.
+* `role`: the role to define.
+
+The role will have no permissions granted, but will appear in `list_roles()`.
 
 ```js
-acl.addRole('admin');
-acl.addRole(['anonymous', 'registered']);
-
-acl.listRoles(); // -> ['admin', 'anonymous', 'registered']
+acl.add_role('admin')
+acl.list_roles() // -> ['admin']
 ```
 
-#### `addResource(resources)`
-Define resource[s].
+#### `add_resource(resource)`
+Define a resource.
 
-* `resources`: resource[s] to define.
+* `resources`: the resource to define.
 
-The resource will have no permissions defined but will list in
-`listResources()`.
+The resource will have no permissions defined but will list in `list_resources()`.
 
 ```js
-acl.addResource('blog');
-acl.addResource(['page', 'article']);
-
-acl.listResources(); // -> ['blog', 'page', 'article']
+acl.add_resource('blog')
+acl.list_resources() // -> ['blog']
 ```
 
-#### `addPermission(resources, permissions)`
-Define permission[s] on resource[s].
+#### `add_permission(resource, permission)`
+Define a permission on a resource.
 
-* `resources`: resource[s] to define the permission on.
-    Are created if were not previously defined.
-* `permissions`: permission[s] to define.
+* `resource`: the resource to define the permission on.
+    Is created if was not previously defined.
+* `permission`: the permission to define.
 
-The defined permissions are not granted to anyone, but will appear in
-`listPermissions()`.
+The defined permission is not granted to anyone, but will appear in `list_permissions(resource)`.
 
 ```js
-acl.addPermission('blog', 'post');
-acl.addPermission(['page', 'article'], ['create', 'read', 'update', 'delete']);
-
-acl.listPermissions('page'); // -> ['create', 'read', 'update', 'delete']
+acl.add_permission('blog', 'post')
+acl.list_permissions('blog') // -> ['post']
 ```
 
 #### `add(structure)`
 Define the whole resource/permission structure with a single object.
 
-* `structure`: an object that maps resources to an array of permissions.
+* `structure`: an object that maps resources to an iterable of permissions.
 
 ```js
 acl.add({
-    blog: ['post'],
-    page: ['create', 'read', 'update', 'delete'],
-    article: ['create', 'read', 'update', 'delete'],
-});
+    'blog': ['post'],
+    'page': {'create', 'read', 'update', 'delete'},
+})
 ```
 
 ### Remove
-#### `removeRole(roles)`
-Remove role[s] and their grants.
+#### `remove_role(role)`
+Remove the role and its grants.
 
-* `roles`: role[s] to remove.
-
-```js
-acl.removeRole('admin');
-acl.removeRole(['anonymous', 'registered']);
-```
-
-#### `removeResource(resources)`
-Remove resource[s] along with their grants and permissions.
-
-* `resources`: resource[s] to remove.
+* `role`: the role to remove.
 
 ```js
-acl.removeResource('blog');
-acl.removeResource(['page', 'article']);
+acl.remove_role('admin')
 ```
 
-#### `removePermission(resources, permissions)`
-Remove permission[s] from resource[s].
+#### `remove_resource(resource)`
+Remove the resource along with its grants and permissions.
 
-* `resources`: resource[s] to remove the permissions from.
-* `permissions`: permission[s] to remove.
+* `resource`: the resource to remove.
+
+```js
+acl.remove_resource('blog')
+```
+
+#### `remove_permission(resource, permission)`
+Remove the permission from a resource.
+
+* `resource`: the resource to remove the permission from.
+* `permission`: the permission to remove.
 
 The resource is not implicitly removed: it remains with an empty set of permissions.
 
 ```js
-acl.removePermissions('blog', 'post');
-acl.removePermissions(['page', 'article'], ['create', 'update']);
+acl.remove_permission('blog', 'post')
 ```
 
 ### List
 
-#### `listRoles()`
+#### `list_roles()`
 Get the list of defined roles.
 
 ```js
-acl.listRoles(); // -> ['admin', 'anonymous', 'registered']
+acl.list_roles() // -> ['admin', 'anonymous', 'registered']
 ```
 
-#### `listResources()`
+#### `list_resources()`
 Get the list of defined resources, including those with empty permissions list.
 
 ```js
-acl.listResources(); // -> ['blog', 'page', 'article']
+acl.list_resources() // -> ['blog', 'page', 'article']
 ```
 
-#### `listPermissions(resources)`
-Get the list of permissions for a resource, or for multiple resources.
+#### `list_permissions(resource)`
+Get the list of permissions for a resource.
 
 * `resources`: resource[s] to get the permissions for. Optional.
 
 ```js
-acl.listPermissions('page'); // -> ['create', 'read', 'update', 'delete']
-acl.listPermissions(['blog', 'page']); // -> ['post', 'create', ... ]
-acl.listPermissions(); // -> [ ..all.. ]
+acl.list_permissions('page') // -> ['create', 'read', 'update', 'delete']
 ```
 
-#### `list([resources])`
-Get the *structure*: list of resources mapped to their permissions.
+#### `list()`
+Get the *structure*: hash of all resources mapped to their permissions.
 
-* `resources`: resource[s] to get the structure for. Optional.
-
-Returns an object: `{ resource: [perm, ...] }`.
+Returns an object: `{ resource: set(permission,...), ... }`.
 
 ```js
-acl.list(); // -> { blog: ['post'], page: ['create', ...] }
-acl.list('blog'); // -> { blog: ['post'] }
-acl.list(['blog', 'page']); // -> { blog: ['post'], page: ['create', ...] }
+acl.list(); // -> { blog: {'post'}, page: {'create', ...} }
 ```
 
 ### Export and Import

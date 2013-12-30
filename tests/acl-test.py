@@ -8,8 +8,10 @@ class TestAclStructure(unittest.TestCase):
 
         acl.add_role('root')
         acl.add_role('superadmin')
-        acl.add_role('superadmin', 'user', 'poweruser')
-        acl.add_role('root', 'n00b')
+        acl.add_role('superadmin')
+        acl.add_role('user')
+        acl.add_role('poweruser')
+        acl.add_role('n00b')
 
         self.assertListEqual(
             sorted(acl.list_roles()),
@@ -17,7 +19,8 @@ class TestAclStructure(unittest.TestCase):
         )
 
         acl.del_role('poweruser')
-        acl.del_role('poweruser', 'n00b')
+        acl.del_role('poweruser')
+        acl.del_role('n00b')
 
         self.assertListEqual(
             sorted(acl.list_roles()),
@@ -29,8 +32,10 @@ class TestAclStructure(unittest.TestCase):
         acl = miracle.Acl()
 
         acl.add_resource('user')
-        acl.add_resource('page', 'news')
-        acl.add_resource('page', 'blog')
+        acl.add_resource('page')
+        acl.add_resource('page')
+        acl.add_resource('news')
+        acl.add_resource('blog')
 
         self.assertListEqual(
             sorted(acl.list_resources()),
@@ -38,12 +43,10 @@ class TestAclStructure(unittest.TestCase):
         )
 
         acl.del_resource('news')
-        acl.del_resource('news', 'blog')
+        acl.del_resource('news')
+        acl.del_resource('blog')
 
         self.assertListEqual(
             sorted(acl.list_resources()),
             sorted(['user', 'page'])
         )
-
-if __name__ == '__main__':
-    unittest.main()

@@ -1,10 +1,12 @@
+import h
+
 
 class Acl(object):
     def __init__(self):
         #: Set of defined roles
         self._roles = set()
 
-        #: Resources & Resources mapped to sets of permissions
+        #: Resources & Permissions: { resource: set(permission) }
         self._structure = {}
 
         #: Grants: { role: { resource: set(permissions) } }
@@ -12,61 +14,64 @@ class Acl(object):
 
     #region Create
 
-    def add_role(self, *roles):
-        """ Define roles.
+    def add_role(self, role):
+        """ Define a role.
 
-            :type roles: list
-            :param roles: Roles to define
-                Any hashable objects will do
-
+            :param role: Role to define.
+                Any hashable object will do
             :rtype: Acl
 
             Existing roles are not overwritten nor duplicated.
         """
-        for role in roles:
-            self._roles.add(role)
+        self._roles.add(role)
         return self
 
-    def add_resource(self, *resources):
+    def add_resource(self, resource):
         """ Define resources.
 
-            :type roles: list
-            :param roles: Resources to define. For now, they will have empty set of permissions
+            :param resource: Resource to define.
+                For now, it will have an empty set of permissions
+            :rtype: Acl
 
             Existing resources are not overwritten nor duplicated
         """
-        for res in resources:
-            if res not in self._structure:
-                self._structure[res] = set()
+        if resource not in self._structure:
+            self._structure[resource] = set()
+        return self
+
+    def add_permission(self, resource, permission):
+        """ Define permission on a resource
+
+            :param resources: Existing resource to define the permission on.
+            :param permission: Permission to define.
+            :rtype: Acl
+
+            Existing permissions are not overwritten nor duplicated
+        """
+        self._structure[resource].add(permission)
         return self
 
     #endregion
 
     #region Delete
 
-    def del_role(self, *roles):
-        """ Remove roles and their grants.
+    def del_role(self, role):
+        """ Remove role and their grants.
 
-            :type roles: list
-            :param roles: Roles to remove
-
+            :param roles: Role to remove
             :rtype: Acl
         """
-        for role in roles:
-            self._roles.discard(role)
+        self._roles.discard(role)
         return self
 
-    def del_resource(self, *resources):
-        """ Remove resources along with their grants and permissions
+    def del_resource(self, resource):
+        """ Remove resource along with its grants and permissions
 
-            :type resources: list
-            :param resources: Resources to remove
-
+            :param resource: Resource to remove
             :rtype: Acl
         """
-        for res in resources:
-            if res in self._structure:
-                del self._structure[res]
+        if resource in self._structure:
+            del self._structure[resource]
         return self
 
     #endregion

@@ -1,5 +1,4 @@
-import h
-
+from copy import copy
 
 class Acl(object):
     def __init__(self):
@@ -46,10 +45,23 @@ class Acl(object):
             :param permission: Permission to define.
             :rtype: Acl
 
+            The resource is created if missing.
             Existing permissions are not overwritten nor duplicated
         """
         self.add_resource(resource)
         self._structure[resource].add(permission)
+        return self
+
+    def add(self, structure):
+        """ Define the whole structure of resources and permissions
+
+            :type structure: dict
+            :param structure: A dict {resource: [permissions]}
+            :rtype: Acl
+        """
+        for resource, permissions in structure.items():
+            for permission in permissions:
+                self.add_permission(resource, permission)
         return self
 
     #endregion
@@ -57,7 +69,10 @@ class Acl(object):
     #region Delete
 
     def clear(self):
-        """ Clear the Acl """
+        """ Clear the Acl completely
+
+            This removes all roles, resources, permissions ans grants
+        """
         self._roles.clear()
         self._structure.clear()
         self._grants.clear()
@@ -68,6 +83,8 @@ class Acl(object):
 
             :param roles: Role to remove
             :rtype: Acl
+
+            Undefined roles are silently ignored
         """
         self._roles.discard(role)
         return self
@@ -77,6 +94,8 @@ class Acl(object):
 
             :param resource: Resource to remove
             :rtype: Acl
+
+            Undefined resources are silently ignored
         """
         if resource in self._structure:
             del self._structure[resource]
@@ -88,6 +107,8 @@ class Acl(object):
             :param resource: The resource to remove the permission from
             :param permission: Permission to remove
             :rtype: Acl
+
+            Undefined resources and permissions are silently ignored
         """
         if resource in self._structure:
             self._structure[resource].discard(permission)
@@ -119,5 +140,17 @@ class Acl(object):
         if resource not in self._structure:
             return []
         return list(self._structure[resource])
+
+    def list(self):
+        """ Get the whole structure of resources and permissions
+
+            Returns { resource: set(permission) }
+
+            :rtype: dict
+        """
+        ret = {}
+        for resource, permissons in self._structure.items():
+            ret[resource] = set(permissons)
+        return ret
 
     #endregion

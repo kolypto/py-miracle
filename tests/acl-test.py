@@ -130,3 +130,55 @@ class TestAclStructure(unittest.TestCase):
             sorted(acl.list_permissions('log')),
             sorted(['delete'])
         )
+
+    def test_structure(self):
+        """ add(), list() """
+        acl = miracle.Acl()
+
+        # Add
+        acl.add({
+            '/article': {'create','edit'},
+            '/profile': ['edit'],
+        })
+        acl.add({
+            '/article': ['vote'],
+        })
+
+        # list()
+        self.assertDictEqual(
+            acl.list(),
+            {
+                '/article': {'create','edit','vote'},
+                '/profile': {'edit'}
+            }
+        )
+
+        # lit() must produce a copy
+        l = acl.list()
+        l['/lol'] = 'a'
+        l['/article'].add('lol')
+
+        # Test: should not be modified
+        self.assertDictEqual(
+            acl.list(),
+            {
+                '/article': {'create', 'edit', 'vote'},
+                '/profile': {'edit'}
+            }
+        )
+
+        # Test resources
+        self.assertListEqual(
+            sorted(acl.list_resources()),
+            sorted(['/article', '/profile'])
+        )
+
+        # Test permissions on resources
+        self.assertListEqual(
+            sorted(acl.list_permissions('/article')), # empty ok
+            sorted(['create', 'edit', 'vote'])
+        )
+        self.assertListEqual(
+            sorted(acl.list_permissions('/profile')), # empty ok
+            sorted(['edit'])
+        )

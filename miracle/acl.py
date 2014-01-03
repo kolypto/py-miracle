@@ -96,6 +96,7 @@ class Acl(object):
             Undefined roles are silently ignored
         """
         self._roles.discard(role)
+        self._grants = set([x for x in self._grants if x[0] != role])
         return self
 
     def del_resource(self, resource):
@@ -108,6 +109,7 @@ class Acl(object):
         """
         if resource in self._structure:
             del self._structure[resource]
+        self._grants = set([x for x in self._grants if x[1] != resource])
         return self
 
     def del_permission(self, resource, permission):
@@ -121,6 +123,7 @@ class Acl(object):
         """
         if resource in self._structure:
             self._structure[resource].discard(permission)
+        self._grants = set([x for x in self._grants if x[2] != permission])
         return self
 
     #endregion
@@ -132,7 +135,7 @@ class Acl(object):
 
             :rtype: list
         """
-        return set(list(self._roles))
+        return set(self._roles)
 
     def get_resources(self):
         """ Get the list of resources

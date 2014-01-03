@@ -262,26 +262,29 @@ class TestAclStructure(unittest.TestCase):
     def test_del(self):
         """ del_*() does not remove grants """
         acl = miracle.Acl()
-        acl.grant('root', 'a', 'anything')
-        acl.grant('root', 'b', 'everything')
-        acl.grant('admin', 'b', 'something')
-        acl.grant('nobody', 'a', 'nothing')
-        acl.grant('nobody', 'c', 'nothing')
+        acl.grants({
+            'root': {
+                'a': ['anything'],
+                'b': ['everything']
+            },
+            'admin': {
+                'b': ['something'],
+            },
+            'nobody': {
+                'a': {'nothing'},
+                'c': {'nothing'}
+            }
+        })
 
         acl.del_permission('a', 'anything')
         acl.del_role('root')
         acl.del_resource('c')
 
         self.assertDictEqual(acl.show(), {
-            'root': {
-                'a': {'anything'},
-                'b': {'everything'},
-            },
             'admin': {
                 'b': {'something'},
             },
             'nobody': {
-                'a': {'nothing'},
-                'c': {'nothing'}
+                'a': {'nothing'}
             }
         })

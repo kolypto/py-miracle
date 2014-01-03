@@ -1,6 +1,6 @@
 from distutils.core import setup
 
-setup(
+setup( # http://guide.python-distribute.org/creation.html
     name='miracle',
     version='0.0.1',
     author='Mark Vartanyan',
@@ -27,6 +27,7 @@ setup(
         'Intended Audience :: Developers',
         'Natural Language :: English',
         'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 3',
         'Operating System :: OS Independent'
     ],
 )

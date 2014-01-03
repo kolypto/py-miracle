@@ -292,7 +292,7 @@ class Acl(object):
 
         # Intersect them
         for role, gs in grants.items():
-            for resource in ret.keys():
+            for resource in list(ret.keys()):
                 if resource in gs:
                     ret[resource] &= gs[resource]
                 else:

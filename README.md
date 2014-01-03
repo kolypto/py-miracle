@@ -11,7 +11,12 @@ does not force you to persist and does not insist on any formats or conventions.
 
 Maximum flexibility and total control. Enjoy! :)
 
-Is a port of [miracle](https://github.com/kolypto/nodejs-miracle/) for NodeJS.
+Highlights:
+
+* Inspired by [miracle](https://github.com/kolypto/nodejs-miracle/) for NodeJS ;
+* Simple core
+* No restrictions on authorization entities
+* Unit-tested
 
 
 

@@ -43,18 +43,19 @@ Table of Contents
         * <a href="#get_permissionsresource">get_permissions(resource)</a>
         * <a href="#get-1">get()</a>
     * <a href="#export-and-import">Export and Import</a>
-* <a href="#grant-permissions">Grant Permissions</a>
-    * <a href="#grantrole-resource-permission">grant(role, resource, permission)</a>
-    * <a href="#revokerole-resource-permission">revoke(role, resource, permission)</a>
 * <a href="#authorize">Authorize</a>
-    * <a href="#checkrole-resource-permission">check(role, resource, permission)</a>
-    * <a href="#check_anyroles-resource-permission">check_any(roles, resource, permission)</a>
-    * <a href="#check_allroles-resource-permission">check_all(roles, resource, permission)</a>
-* <a href="#show-grants">Show Grants</a>
-    * <a href="#whichrole">which(role)</a>
-    * <a href="#which_anyroles">which_any(roles)</a>
-    * <a href="#which_allroles">which_all(roles)</a>
-    * <a href="#show">show()</a> 
+    * <a href="#grant-permissions">Grant Permissions</a>
+        * <a href="#grantrole-resource-permission">grant(role, resource, permission)</a>
+        * <a href="#revokerole-resource-permission">revoke(role, resource, permission)</a>
+    * <a href="#check-permissions">Check Permissions</a>
+        * <a href="#checkrole-resource-permission">check(role, resource, permission)</a>
+        * <a href="#check_anyroles-resource-permission">check_any(roles, resource, permission)</a>
+        * <a href="#check_allroles-resource-permission">check_all(roles, resource, permission)</a>
+    * <a href="#show-grants">Show Grants</a>
+        * <a href="#whichrole">which(role)</a>
+        * <a href="#which_anyroles">which_any(roles)</a>
+        * <a href="#which_allroles">which_all(roles)</a>
+        * <a href="#show">show()</a> 
 
 
 

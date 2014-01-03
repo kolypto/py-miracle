@@ -19,7 +19,6 @@ setup(
     install_requires=[
     ],
     include_package_data=True,
-    test_suite='tests',
 
     platforms='any',
     classifiers=[

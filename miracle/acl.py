@@ -1,5 +1,6 @@
 from collections import defaultdict, Iterable
 
+
 class Acl(object):
     def __init__(self):
         #: Set of defined roles
@@ -11,7 +12,7 @@ class Acl(object):
         #: Grants: set( (role, resource, permission) )
         self._grants = set()
 
-    #region Create
+    #region Add
 
     def add_role(self, role):
         """ Define a role.
@@ -115,23 +116,23 @@ class Acl(object):
 
     #endregion
 
-    #region List
+    #region Get
 
-    def list_roles(self):
+    def get_roles(self):
         """ Get the list of roles.
 
             :rtype: list
         """
         return set(list(self._roles))
 
-    def list_resources(self):
+    def get_resources(self):
         """ Get the list of resources
 
             :rtype: list
         """
         return set(self._structure.keys())
 
-    def list_permissions(self, resource):
+    def get_permissions(self, resource):
         """ Get the list of permissions on a resource
 
             :param resource: The resource to list the permissions for
@@ -141,7 +142,7 @@ class Acl(object):
             return set()
         return set(self._structure[resource])
 
-    def list(self):
+    def get(self):
         """ Get the whole structure of resources and permissions
 
             Returns { resource: set(permission) }
@@ -318,8 +319,8 @@ class Acl(object):
 
     def __getstate__(self):
         return {
-            'roles': self.list_roles(),
-            'struct': self.list(),
+            'roles': self.get_roles(),
+            'struct': self.get(),
             'grants': self.show()
         }
 

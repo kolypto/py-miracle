@@ -60,11 +60,11 @@ Define a role.
 
 * `role`: the role to define.
 
-The role will have no permissions granted, but will appear in `list_roles()`.
+The role will have no permissions granted, but will appear in `get_roles()`.
 
 ```js
 acl.add_role('admin')
-acl.list_roles()  # -> {'admin'}
+acl.get_roles()  # -> {'admin'}
 ```
 
 #### `add_resource(resource)`
@@ -72,11 +72,11 @@ Define a resource.
 
 * `resources`: the resource to define.
 
-The resource will have no permissions defined but will list in `list_resources()`.
+The resource will have no permissions defined but will appear in `get_resources()`.
 
 ```js
 acl.add_resource('blog')
-acl.list_resources()  # -> {'blog'}
+acl.get_resources()  # -> {'blog'}
 ```
 
 #### `add_permission(resource, permission)`
@@ -86,11 +86,11 @@ Define a permission on a resource.
     Is created if was not previously defined.
 * `permission`: the permission to define.
 
-The defined permission is not granted to anyone, but will appear in `list_permissions(resource)`.
+The defined permission is not granted to anyone, but will appear in `get_permissions(resource)`.
 
 ```js
 acl.add_permission('blog', 'post')
-acl.list_permissions('blog')  # -> {'post'}
+acl.get_permissions('blog')  # -> {'post'}
 ```
 
 #### `add(structure)`
@@ -136,38 +136,38 @@ The resource is not implicitly removed: it remains with an empty set of permissi
 acl.remove_permission('blog', 'post')
 ```
 
-### List
+### Get
 
-#### `list_roles()`
+#### `get_roles()`
 Get the set of defined roles.
 
 ```js
-acl.list_roles()  # -> {'admin', 'anonymous', 'registered'}
+acl.get_roles()  # -> {'admin', 'anonymous', 'registered'}
 ```
 
-#### `list_resources()`
-Get the set of defined resources, including those with empty permissions list.
+#### `get_resources()`
+Get the set of defined resources, including those with empty permissions set.
 
 ```js
-acl.list_resources()  # -> {'blog', 'page', 'article'}
+acl.get_resources()  # -> {'blog', 'page', 'article'}
 ```
 
-#### `list_permissions(resource)`
+#### `get_permissions(resource)`
 Get the set of permissions for a resource.
 
 * `resource`: the resource to get the permissions for.
 
 ```js
-acl.list_permissions('page')  # -> {'create', 'read', 'update', 'delete'}
+acl.get_permissions('page')  # -> {'create', 'read', 'update', 'delete'}
 ```
 
-#### `list()`
+#### `get()`
 Get the *structure*: hash of all resources mapped to their permissions.
 
 Returns a dict: `{ resource: set(permission,...), ... }`.
 
 ```js
-acl.list()  # -> { blog: {'post'}, page: {'create', ...} }
+acl.get()  # -> { blog: {'post'}, page: {'create', ...} }
 ```
 
 ### Export and Import

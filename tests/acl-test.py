@@ -16,7 +16,7 @@ class TestAclStructure(unittest.TestCase):
         acl.add_role('n00b')
 
         # Test roles
-        self.assertSetEqual(acl.list_roles(), {'root','superadmin','user','poweruser','n00b'})
+        self.assertSetEqual(acl.get_roles(), {'root','superadmin','user','poweruser','n00b'})
 
         # Del roles
         acl.del_role('poweruser')
@@ -24,7 +24,7 @@ class TestAclStructure(unittest.TestCase):
         acl.del_role('n00b')
 
         # Test roles
-        self.assertSetEqual(acl.list_roles(), {'root','superadmin','user'})
+        self.assertSetEqual(acl.get_roles(), {'root','superadmin','user'})
 
     def test_resources(self):
         """ add_resource(), list_resource(), del_resource() """
@@ -38,7 +38,7 @@ class TestAclStructure(unittest.TestCase):
         acl.add_resource('blog')
 
         # Test resources
-        self.assertSetEqual(acl.list_resources(), {'user', 'page', 'news', 'blog'})
+        self.assertSetEqual(acl.get_resources(), {'user', 'page', 'news', 'blog'})
 
         # Delete resources
         acl.del_resource('news')
@@ -46,7 +46,7 @@ class TestAclStructure(unittest.TestCase):
         acl.del_resource('blog')
 
         # Test resources
-        self.assertSetEqual(acl.list_resources(), {'user', 'page'})
+        self.assertSetEqual(acl.get_resources(), {'user', 'page'})
 
     def test_permissions(self):
         """ add_permission(), list_permissions(), del_permission() """
@@ -62,13 +62,13 @@ class TestAclStructure(unittest.TestCase):
         acl.add_permission('log', 'delete')
 
         # Test resources
-        self.assertSetEqual(acl.list_resources(), {'user', 'post', 'log'})
+        self.assertSetEqual(acl.get_resources(), {'user', 'post', 'log'})
 
         # Test permissions on resources
-        self.assertSetEqual(acl.list_permissions('404'), set()) # empty ok
-        self.assertSetEqual(acl.list_permissions('user'), {'create','read','write'})
-        self.assertSetEqual(acl.list_permissions('post'), {'read', 'create'})
-        self.assertSetEqual(acl.list_permissions('log'), {'delete'})
+        self.assertSetEqual(acl.get_permissions('404'), set()) # empty ok
+        self.assertSetEqual(acl.get_permissions('user'), {'create','read','write'})
+        self.assertSetEqual(acl.get_permissions('post'), {'read', 'create'})
+        self.assertSetEqual(acl.get_permissions('log'), {'delete'})
 
         # Del permissions
         acl.del_permission('user', 'write')
@@ -76,13 +76,13 @@ class TestAclStructure(unittest.TestCase):
         acl.del_permission('post', 'create') # does not fail
 
         # Test resources
-        self.assertSetEqual(acl.list_resources(), {'user', 'post', 'log'})
+        self.assertSetEqual(acl.get_resources(), {'user', 'post', 'log'})
 
         # Test permissions on resources
-        self.assertSetEqual(acl.list_permissions('404'), set())
-        self.assertSetEqual(acl.list_permissions('user'), {'create', 'read'})
-        self.assertSetEqual(acl.list_permissions('post'), {'read'})
-        self.assertSetEqual(acl.list_permissions('log'), {'delete'})
+        self.assertSetEqual(acl.get_permissions('404'), set())
+        self.assertSetEqual(acl.get_permissions('user'), {'create', 'read'})
+        self.assertSetEqual(acl.get_permissions('post'), {'read'})
+        self.assertSetEqual(acl.get_permissions('log'), {'delete'})
 
     def test_structure(self):
         """ add(), list() """
@@ -99,7 +99,7 @@ class TestAclStructure(unittest.TestCase):
 
         # list()
         self.assertDictEqual(
-            acl.list(),
+            acl.get(),
             {
                 '/article': {'create','edit','vote'},
                 '/profile': {'edit'}
@@ -107,13 +107,13 @@ class TestAclStructure(unittest.TestCase):
         )
 
         # lit() must produce a copy
-        l = acl.list()
+        l = acl.get()
         l['/lol'] = 'a'
         l['/article'].add('lol')
 
         # Test: should not be modified
         self.assertDictEqual(
-            acl.list(),
+            acl.get(),
             {
                 '/article': {'create', 'edit', 'vote'},
                 '/profile': {'edit'}
@@ -121,11 +121,11 @@ class TestAclStructure(unittest.TestCase):
         )
 
         # Test resources
-        self.assertSetEqual(acl.list_resources(), {'/article', '/profile'})
+        self.assertSetEqual(acl.get_resources(), {'/article', '/profile'})
 
         # Test permissions on resources
-        self.assertSetEqual(acl.list_permissions('/article'), {'create', 'edit', 'vote'}) # empty ok
-        self.assertSetEqual(acl.list_permissions('/profile'), {'edit'}) # empty ok
+        self.assertSetEqual(acl.get_permissions('/article'), {'create', 'edit', 'vote'}) # empty ok
+        self.assertSetEqual(acl.get_permissions('/profile'), {'edit'}) # empty ok
 
     def test_grant(self):
         """ grant(), revoke(), show() """
@@ -139,8 +139,8 @@ class TestAclStructure(unittest.TestCase):
         acl.revoke('user', '/admin', 'kill') # dupe
 
         # Structure
-        self.assertSetEqual(acl.list_roles(), {'root', 'user'})
-        self.assertDictEqual( acl.list(), {
+        self.assertSetEqual(acl.get_roles(), {'root', 'user'})
+        self.assertDictEqual( acl.get(), {
             '/admin': {'enter','kill'}, # 'kill' remains, though revoked
             '/article': {'view','edit'}
         })

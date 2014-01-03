@@ -12,13 +12,13 @@ setup(
     long_description=open('README.rst').read(),
     keywords=['acl', 'rbac', 'authorization'],
 
-    packages=['miracle','miracle.testsuite'],
+    packages=['miracle', 'miracle.tests'],
     scripts=[],
 
     install_requires=[
     ],
     include_package_data=True,
-    test_suite='miracle.testsuite.suite',
+    test_suite='miracle.tests',
 
     platforms='any',
     classifiers=[

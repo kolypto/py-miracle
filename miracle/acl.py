@@ -1,4 +1,4 @@
-from copy import copy
+from collections import defaultdict, Iterable
 
 class Acl(object):
     def __init__(self):
@@ -6,10 +6,10 @@ class Acl(object):
         self._roles = set()
 
         #: Resources & Permissions: { resource: set(permission) }
-        self._structure = {}
+        self._structure = defaultdict(set)
 
-        #: Grants: { role: { resource: set(permissions) } }
-        self._grants = {}
+        #: Grants: set( (role, resource, permission) )
+        self._grants = set()
 
     #region Create
 
@@ -48,7 +48,6 @@ class Acl(object):
             The resource is created if missing.
             Existing permissions are not overwritten nor duplicated
         """
-        self.add_resource(resource)
         self._structure[resource].add(permission)
         return self
 
@@ -123,23 +122,24 @@ class Acl(object):
 
             :rtype: list
         """
-        return list(self._roles)
+        return set(list(self._roles))
 
     def list_resources(self):
         """ Get the list of resources
 
             :rtype: list
         """
-        return self._structure.keys()
+        return set(self._structure.keys())
 
     def list_permissions(self, resource):
         """ Get the list of permissions on a resource
 
+            :param resource: The resource to list the permissions for
             :rtype: list
         """
         if resource not in self._structure:
-            return []
-        return list(self._structure[resource])
+            return set()
+        return set(self._structure[resource])
 
     def list(self):
         """ Get the whole structure of resources and permissions
@@ -149,8 +149,188 @@ class Acl(object):
             :rtype: dict
         """
         ret = {}
-        for resource, permissons in self._structure.items():
-            ret[resource] = set(permissons)
+        for resource, permissions in self._structure.items():
+            ret[resource] = set(permissions)
         return ret
+
+    #endregion
+
+    #region Grant Permissions
+
+    def grant(self, role, resource, permission):
+        """ Grant a permission over resource to the role.
+
+            Missing entities are added to the structure
+
+            :param role: The role to grant the access to
+            :param resource: The resource to grant the access over
+            :param permission: The permission to grant with
+            :rtype: Acl
+        """
+        self.add_role(role)
+        self.add_resource(resource)
+        self.add_permission(resource, permission)
+        self._grants.add((role, resource, permission))
+        return self
+
+    def revoke(self, role, resource, permission):
+        """ Revoke a permission over a resource from the specified role.
+
+            :param role: The role to modify
+            :param resource: The resource to modify
+            :param permission: The permission to revoke
+            :rtype: Acl
+        """
+        self._grants.discard((role, resource, permission))
+        return self
+
+    #endregion
+
+    #region Check
+
+    def check(self, role, resource, permission):
+        """ Test whether the given role has access to the resource with the specified permission.
+
+            :param role: The role to check the access for
+            :param resource: The resource to check the access for
+            :param permission: The permission to check the access with
+            :rtype: bool
+        """
+        return (role, resource, permission) in self._grants
+
+    def check_any(self, roles, resource, permission):
+        """ Test whether ANY of the given roles have access to the resource with the specified permission.
+
+            :param roles: Roles collection to check the access for
+            :param resource: The resource to check the access for
+            :param permission: The permission to check the access with
+            :rtype: bool
+        """
+        # No roles
+        if not roles or not isinstance(roles, Iterable):
+            return False
+
+        # Any
+        for role in roles:
+            if (role, resource, permission) in self._grants:
+                return True
+        return False
+
+    def check_all(self, roles, resource, permission):
+        """ Test whether ALL of the given roles have access to the resource with the specified permission.
+
+            :param roles: Roles collection to check the access for
+            :param resource: The resource to check the access for
+            :param permission: The permission to check the access with
+            :rtype: bool
+        """
+        # No roles
+        if not roles or not isinstance(roles, Iterable):
+            return False
+
+        # all
+        for role in roles:
+            if not (role, resource, permission) in self._grants:
+                return False
+        return True
+
+    #endregion
+
+    #region Show Grants
+
+    def which(self, role):
+        """ Collect grants that the provided role has
+
+            Returns: { resource: set(permission) }
+
+            :param role: The role to show the grants for
+            :rtype: dict
+        """
+        ret = defaultdict(set)
+        for (r, resource, permission) in filter(lambda x: x[0] == role, self._grants):
+            ret[resource].add(permission)
+        return dict(ret)
+
+    def which_any(self, roles):
+        """ Collect grants that ANY of the provided roles have
+
+            Returns: { resource: set(permission) }
+
+            :param roles: The roles to show the grants for
+            :rtype: dict
+        """
+        # No roles
+        if not roles or not isinstance(roles, Iterable):
+            return {}
+
+        # Union
+        ret = defaultdict(set)
+        for (r, resource, permission) in filter(lambda x: x[0] in roles, self._grants):
+            ret[resource].add(permission)
+        return dict(ret)
+
+    def which_all(self, roles):
+        """ Collect grants that ALL of the provided roles have
+
+            Returns: { resource: set(permission) }
+
+            :param roles: The roles to show the grants for
+            :rtype: dict
+        """
+        # No roles
+        if not roles or not isinstance(roles, Iterable):
+            return {}
+
+        # Collect grants for each role
+        grants = {role: self.which(role) for role in roles}
+
+        # Start with the first one
+        if not grants:
+            return dict()
+        ret = grants.popitem()[1]
+
+        # Intersect them
+        for role, gs in grants.items():
+            for resource in ret.keys():
+                if resource in gs:
+                    ret[resource] &= gs[resource]
+                else:
+                    del ret[resource]
+
+        # Finish
+        return dict(ret)
+
+    def show(self):
+        """ Show all current grants
+
+            Returns: { role: { resource: set(permission) } }
+
+            :rtype: dict
+        """
+        ret = defaultdict(lambda: defaultdict(set))
+        for (role, resource, permission) in self._grants:
+            ret[role][resource].add(permission)
+        return dict(ret)
+
+    #endregion
+
+    #region Export & Import
+
+    def __getstate__(self):
+        return {
+            'roles': self.list_roles(),
+            'struct': self.list(),
+            'grants': self.show()
+        }
+
+    def __setstate__(self, state):
+        for role in state['roles']:
+            self.add_role(role)
+        self.add(state['struct'])
+        for role, gs in state['grants'].items():
+            for resource, permissions in gs.items():
+                for permission in permissions:
+                    self.grant(role, resource, permission)
+        return self
 
     #endregion

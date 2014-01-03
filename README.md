@@ -53,7 +53,7 @@ implicitly creates all resources and permissions that were not previously define
 Start with defining the *resources* and *permissions* on them, then you can grant a *role* with the access to some
 permissions on a resource.
 
-For roles, resources & permissions, any hashable object will do.
+For roles, resources & permissions, any hashable objects will do.
 
 #### `add_role(role)`
 Define a role.
@@ -64,7 +64,7 @@ The role will have no permissions granted, but will appear in `list_roles()`.
 
 ```js
 acl.add_role('admin')
-acl.list_roles() // -> ['admin']
+acl.list_roles()  # -> {'admin'}
 ```
 
 #### `add_resource(resource)`
@@ -76,7 +76,7 @@ The resource will have no permissions defined but will list in `list_resources()
 
 ```js
 acl.add_resource('blog')
-acl.list_resources() // -> ['blog']
+acl.list_resources()  # -> {'blog'}
 ```
 
 #### `add_permission(resource, permission)`
@@ -90,13 +90,13 @@ The defined permission is not granted to anyone, but will appear in `list_permis
 
 ```js
 acl.add_permission('blog', 'post')
-acl.list_permissions('blog') // -> ['post']
+acl.list_permissions('blog')  # -> {'post'}
 ```
 
 #### `add(structure)`
-Define the whole resource/permission structure with a single object.
+Define the whole resource/permission structure with a single dict.
 
-* `structure`: an object that maps resources to an iterable of permissions.
+* `structure`: a dict that maps resources to an iterable of permissions.
 
 ```js
 acl.add({
@@ -139,103 +139,75 @@ acl.remove_permission('blog', 'post')
 ### List
 
 #### `list_roles()`
-Get the list of defined roles.
+Get the set of defined roles.
 
 ```js
-acl.list_roles() // -> ['admin', 'anonymous', 'registered']
+acl.list_roles()  # -> {'admin', 'anonymous', 'registered'}
 ```
 
 #### `list_resources()`
-Get the list of defined resources, including those with empty permissions list.
+Get the set of defined resources, including those with empty permissions list.
 
 ```js
-acl.list_resources() // -> ['blog', 'page', 'article']
+acl.list_resources()  # -> {'blog', 'page', 'article'}
 ```
 
 #### `list_permissions(resource)`
-Get the list of permissions for a resource.
+Get the set of permissions for a resource.
 
-* `resources`: resource[s] to get the permissions for. Optional.
+* `resource`: the resource to get the permissions for.
 
 ```js
-acl.list_permissions('page') // -> ['create', 'read', 'update', 'delete']
+acl.list_permissions('page')  # -> {'create', 'read', 'update', 'delete'}
 ```
 
 #### `list()`
 Get the *structure*: hash of all resources mapped to their permissions.
 
-Returns an object: `{ resource: set(permission,...), ... }`.
+Returns a dict: `{ resource: set(permission,...), ... }`.
 
 ```js
-acl.list(); // -> { blog: {'post'}, page: {'create', ...} }
+acl.list()  # -> { blog: {'post'}, page: {'create', ...} }
 ```
 
 ### Export and Import
-
-There's no single 'export everything' method: instead, you sequentially export the list of roles,
-the structure (resources and permissions), and the grants:
+The `Acl` class is picklable:
 
 ```js
-var miracle = require('miracle');
+acl = miracle.Acl()
+save = acl.__getstate__()
 
-var acl = new miracle.Acl();
+#...
 
-// Export
-var save = {
-    roles: acl.listRoles(),
-    struct: acl.list(),
-    grants: acl.show()
-};
-
-// Import
-acl.addRole(save.roles);
-acl.add(save.struct);
-acl.grant(save.grants);
+acl = miracle.Acl()
+acl.__setstate__(save)
 ```
-
-Note: As the `grant()` method creates resources and roles implicitly, it's usually enough to export the grants.
-  You'll only lose roles & resources with empty grants.
 
 
 
 Grant Permissions
 -----------------
 
-### grant(roles, resources, permissions)
-Grant permission[s] over resource[s] to the specified role[s].
+### grant(role, resource, permission)
+Grant a permission over resource to the specified role.
 
-Has multiple footprints:
-
-* `grant(roles, resources, permissions)` - grant the listed roles with permissions
-    to the listed resources ;
-* `grant(roles, grants)` - grant permissions using a grant object that maps
-    a list of permissions to a resource: `{ resource: [perm, ...] }`.
+* `role`: The role to grant the access to
+* `resource`: The resource to grant the access over
+* `permission`: The permission to grant with
 
 Roles, resources and permissions are implicitly created if missing.
 
 ```js
-acl.grant(['admin', 'manager'], 'blog', ['create', 'update']);
-acl.grant('anonymous', { page: ['view'] });
+acl.grant('admin', 'blog', 'delete')
+acl.grant('anonymous', 'page', 'view')
 ```
 
-### revoke(roles[, resources[, permissions]])
-Revoke permission[s] over resource[s] from the specified role[s].
-
-Has multiple footprints:
-
-* `revoke(roles)` remove grants from all resources ;
-* `revoke(roles, resources)` remove all grants from the listed resources ;
-* `revoke(roles, resources, permissions)` remove specific grants
-    from the listed resources ;
-* `revoke(roles, grants)` - revoke grants using a grant object that maps
-    a list of permissions to a resource: `{ resource: [perm, ...], ... }`.
-
-No roles, resources or permissions are removed implicitly.
+### revoke(role, resource, permission)
+Revoke a permission over a resource from the specified role.
 
 ```js
-acl.revoke('anonymous');
-acl.revoke(['admin', 'manager'], 'blog', ['create', 'update']);
-acl.revoke('anonymous', { page: ['view'] });
+acl.revoke('anonymous', 'page', 'view')
+acl.revoke('user', 'account', 'delete')
 ```
 
 
@@ -243,63 +215,64 @@ acl.revoke('anonymous', { page: ['view'] });
 Authorize
 ---------
 
-### check(roles[, resources[, permissions]])
-Check whether the named role[s] have access to resource[s] with permission[s].
+### check(role, resource, permission)
+Test whether the given role has access to the resource with the specified permission.
 
-Has multiple footprints:
-
-* `check(roles, resources)`: check whether the role[s] have any access to the
-    named resource[s].
-* `check(roles, resources, permissions)`: check with a specific set of
-    permissions.
-* `check(roles, grants)`: check using a grants object.
-
-In order to pass the test, all roles must have access to all resources.
+* `role`: The role to check
+* `resource`: The protected resource
+* `permission`: The required permission
 
 Returns a boolean.
 
 ```js
-acl.check('admin', 'blog'); // -> true
-acl.check(['anonymous'], 'blog', 'read'); // -> true
-acl.check('registered', { page: ['update', 'delete'] });
+acl.check('admin', 'blog') # True
+acl.check('anonymous', 'page', 'delete') # -> False
 ```
 
-### checkAny(roles[, resources[, permissions]])
+### check_any(roles, resource, permission)
+Test whether *any* of the given roles have access to the resource with the specified permission.
 
-Same as `check`, but the united permissions are checked.
+* `roles`: An iterable of roles.
 
-In order to pass the test, any role having access to any resource is sufficient.
+When no roles are provided, returns False.
 
-Also supports the `checkAny(roles, grants)` footprint.
+### check_all(roles, resource, permission)
+Test whether *all* of the given roles have access to the resource with the specified permission.
+
+* `roles`: An iterable of roles.
+
+When no roles are provided, returns False.
 
 
 Show Grants
 -----------
 
-### which(roles)
-Collect grants that each of the provided roles have (intersection).
+### which(role)
+Collect grants that the provided role has:
 
 ```js
-acl.which('admin'); // -> { blog: ['post'] }
+acl.which('admin')  # -> { blog: {'post'} }
 ```
 
-### whichAny(roles)
+### which_any(roles)
 Collect grants that any of the provided roles have (union).
 
 ```js
-acl.which(['anonymous', 'registered']); // -> { page: ['view'] }
+acl.which(['anonymous', 'registered'])  # -> { page: ['view'] }
 ```
 
-### show([roles])
-Get all grants for the specified roles.
-
-* `roles`: role[s] to get the grants for.
-
-Returns an object `{ role: { resource: [perm, ...] } }`.
-Roles that were not defined are not mentioned in the result.
+### which_all(roles)
+Collect grants that all of the provided roles have (intersection):
 
 ```js
-acl.show(); // -> { admin: { blog: ['post'] } }
-acl.show('admin');
-acl.show(['admin', 'anonymous']);
+acl.which(['anonymous', 'registered'])  # -> { page: ['view'] }
+```
+
+### show()
+Get all current grants.
+
+Returns a dict  `{ role: { resource: set(permission) } }`.
+
+```js
+acl.show()  # -> { admin: { blog: ['post'] } }
 ```

@@ -1,6 +1,7 @@
 import unittest
 import miracle
 
+
 class TestAclStructure(unittest.TestCase):
     def test_roles(self):
         """ add_role(), list_roles(), del_role() """
@@ -15,10 +16,7 @@ class TestAclStructure(unittest.TestCase):
         acl.add_role('n00b')
 
         # Test roles
-        self.assertListEqual(
-            sorted(acl.list_roles()),
-            sorted(['root','superadmin','user','poweruser','n00b'])
-        )
+        self.assertSetEqual(acl.list_roles(), {'root','superadmin','user','poweruser','n00b'})
 
         # Del roles
         acl.del_role('poweruser')
@@ -26,10 +24,7 @@ class TestAclStructure(unittest.TestCase):
         acl.del_role('n00b')
 
         # Test roles
-        self.assertListEqual(
-            sorted(acl.list_roles()),
-            sorted(['root','superadmin','user'])
-        )
+        self.assertSetEqual(acl.list_roles(), {'root','superadmin','user'})
 
     def test_resources(self):
         """ add_resource(), list_resource(), del_resource() """
@@ -43,10 +38,7 @@ class TestAclStructure(unittest.TestCase):
         acl.add_resource('blog')
 
         # Test resources
-        self.assertListEqual(
-            sorted(acl.list_resources()),
-            sorted(['user', 'page', 'news', 'blog'])
-        )
+        self.assertSetEqual(acl.list_resources(), {'user', 'page', 'news', 'blog'})
 
         # Delete resources
         acl.del_resource('news')
@@ -54,10 +46,7 @@ class TestAclStructure(unittest.TestCase):
         acl.del_resource('blog')
 
         # Test resources
-        self.assertListEqual(
-            sorted(acl.list_resources()),
-            sorted(['user', 'page'])
-        )
+        self.assertSetEqual(acl.list_resources(), {'user', 'page'})
 
     def test_permissions(self):
         """ add_permission(), list_permissions(), del_permission() """
@@ -73,31 +62,13 @@ class TestAclStructure(unittest.TestCase):
         acl.add_permission('log', 'delete')
 
         # Test resources
-        self.assertListEqual(
-            sorted(acl.list_resources()),
-            sorted(['user', 'post', 'log'])
-        )
+        self.assertSetEqual(acl.list_resources(), {'user', 'post', 'log'})
 
         # Test permissions on resources
-        self.assertListEqual(
-            sorted(acl.list_permissions('404')), # empty ok
-            sorted([])
-        )
-
-        self.assertEqual(
-            sorted(acl.list_permissions('user')),
-            sorted(['create','read','write'])
-        )
-
-        self.assertEqual(
-            sorted(acl.list_permissions('post')),
-            sorted(['read', 'create'])
-        )
-
-        self.assertEqual(
-            sorted(acl.list_permissions('log')),
-            sorted(['delete'])
-        )
+        self.assertSetEqual(acl.list_permissions('404'), set()) # empty ok
+        self.assertSetEqual(acl.list_permissions('user'), {'create','read','write'})
+        self.assertSetEqual(acl.list_permissions('post'), {'read', 'create'})
+        self.assertSetEqual(acl.list_permissions('log'), {'delete'})
 
         # Del permissions
         acl.del_permission('user', 'write')
@@ -105,31 +76,13 @@ class TestAclStructure(unittest.TestCase):
         acl.del_permission('post', 'create') # does not fail
 
         # Test resources
-        self.assertListEqual(
-            sorted(acl.list_resources()),
-            sorted(['user', 'post', 'log'])
-        )
+        self.assertSetEqual(acl.list_resources(), {'user', 'post', 'log'})
 
         # Test permissions on resources
-        self.assertListEqual(
-            sorted(acl.list_permissions('404')), # empty ok
-            sorted([])
-        )
-
-        self.assertEqual(
-            sorted(acl.list_permissions('user')),
-            sorted(['create', 'read'])
-        )
-
-        self.assertEqual(
-            sorted(acl.list_permissions('post')),
-            sorted(['read'])
-        )
-
-        self.assertEqual(
-            sorted(acl.list_permissions('log')),
-            sorted(['delete'])
-        )
+        self.assertSetEqual(acl.list_permissions('404'), set())
+        self.assertSetEqual(acl.list_permissions('user'), {'create', 'read'})
+        self.assertSetEqual(acl.list_permissions('post'), {'read'})
+        self.assertSetEqual(acl.list_permissions('log'), {'delete'})
 
     def test_structure(self):
         """ add(), list() """
@@ -168,17 +121,136 @@ class TestAclStructure(unittest.TestCase):
         )
 
         # Test resources
-        self.assertListEqual(
-            sorted(acl.list_resources()),
-            sorted(['/article', '/profile'])
-        )
+        self.assertSetEqual(acl.list_resources(), {'/article', '/profile'})
 
         # Test permissions on resources
-        self.assertListEqual(
-            sorted(acl.list_permissions('/article')), # empty ok
-            sorted(['create', 'edit', 'vote'])
-        )
-        self.assertListEqual(
-            sorted(acl.list_permissions('/profile')), # empty ok
-            sorted(['edit'])
+        self.assertSetEqual(acl.list_permissions('/article'), {'create', 'edit', 'vote'}) # empty ok
+        self.assertSetEqual(acl.list_permissions('/profile'), {'edit'}) # empty ok
+
+    def test_grant(self):
+        """ grant(), revoke(), show() """
+        acl = miracle.Acl()
+        acl.grant('root', '/admin', 'enter')
+        acl.grant('root', '/admin', 'enter') # dupe
+        acl.grant('user', '/article', 'view')
+        acl.grant('root', '/article', 'edit')
+        acl.grant('user', '/admin', 'kill')
+        acl.revoke('user', '/admin', 'kill')
+        acl.revoke('user', '/admin', 'kill') # dupe
+
+        # Structure
+        self.assertSetEqual(acl.list_roles(), {'root', 'user'})
+        self.assertDictEqual( acl.list(), {
+            '/admin': {'enter','kill'}, # 'kill' remains, though revoked
+            '/article': {'view','edit'}
+        })
+
+        # Grants
+        self.assertDictEqual(acl.show(), {
+            'root': {
+                '/admin': {'enter'},
+                '/article': {'edit'}
+            },
+            'user': {
+                '/article':{'view'}
+            }
+        })
+
+    def test_check(self):
+        """ check(), check_any(), check_all() ; which(), which_any(), which_all() """
+        acl = miracle.Acl()
+        acl.grant('root',   '/admin',   'enter')
+        acl.grant('admin',  '/admin',   'enter')
+        acl.grant('root',   '/user',    'edit')
+        acl.grant('root',   '/user',    'delete')
+        acl.grant('root',   '/user',    'show')
+        acl.grant('admin',  '/user',    'show')
+        acl.grant('admin',  '/user',    'edit')
+        acl.grant('user',   '/user',    'show')
+        acl.add_role('nobody')
+
+        # which()
+        self.assertDictEqual(acl.which('root'), {
+            '/admin': {'enter'},
+            '/user': {'show','edit','delete'}
+        })
+        self.assertDictEqual(acl.which('admin'), {
+            '/admin': {'enter'},
+            '/user': {'show','edit'}
+        })
+        self.assertDictEqual(acl.which('user'), {
+            '/user': {'show'}
+        })
+        self.assertDictEqual(acl.which('nobody'), {
+        })
+
+        # which_any()
+        self.assertDictEqual(acl.which_any(True), {})
+        self.assertDictEqual(acl.which_any([]), {})
+        self.assertDictEqual(acl.which_any(['root', 'user']), acl.which('root'))
+        self.assertDictEqual(acl.which_any(['admin', 'user']), acl.which('admin'))
+        self.assertDictEqual(acl.which_any(['user']), acl.which('user'))
+        self.assertDictEqual(acl.which_any(['user', 'nobody']), acl.which('user'))
+
+        # which_all()
+        self.assertDictEqual(acl.which_all(True), {})
+        self.assertDictEqual(acl.which_all([]), {})
+        self.assertDictEqual(acl.which_all(['root', 'admin']), acl.which('admin'))
+        self.assertDictEqual(acl.which_all(['admin', 'user']), acl.which('user'))
+        self.assertDictEqual(acl.which_all(['root', 'nobody']), acl.which('nobody'))
+        self.assertDictEqual(acl.which_all(['user', 'root', 'nobody']), acl.which('nobody'))
+
+        # check()
+        self.assertTrue(acl.check('root', '/admin', 'enter'))
+        self.assertFalse(acl.check('???', '/admin', 'enter')) # unknown role
+        self.assertFalse(acl.check('root', '/???', 'enter')) # unknown resource
+        self.assertFalse(acl.check('root', '/admin', '???')) # unknown permission
+        self.assertTrue(acl.check('user', '/user', 'show'))
+
+        # check_any()
+        self.assertFalse(acl.check_any(True, '/user', 'show'))
+        self.assertFalse(acl.check_any([], '/user', 'show'))
+        self.assertTrue(acl.check_any(['root'], '/user', 'show'))
+        self.assertTrue(acl.check_any(['root','user'], '/user', 'show'))
+        self.assertTrue(acl.check_any(['root','user'], '/admin', 'enter'))
+        self.assertTrue(acl.check_any(['root','user'], '/user', 'delete'))
+        self.assertFalse(acl.check_any(['admin','user'], '/user', 'delete'))
+
+        # check_all()
+        self.assertFalse(acl.check_all(True, '/user', 'show'))
+        self.assertFalse(acl.check_all([], '/user', 'show'))
+        self.assertTrue(acl.check_all(['root','user'], '/user', 'show'))
+        self.assertFalse(acl.check_all(['root','user'], '/admin', 'enter'))
+        self.assertFalse(acl.check_all(['root','user'], '/user', 'delete'))
+        self.assertFalse(acl.check_all(['root','user'], '/user', 'delete'))
+        self.assertFalse(acl.check_all(['root','admin'], '/user', 'delete'))
+        self.assertTrue(acl.check_all(['root','admin'], '/user', 'edit'))
+
+    def test_pickle(self):
+        """ __getstate__(), __setstate__() """
+        acl = miracle.Acl()
+        acl.grant('root',   '/admin',   'enter')
+        acl.grant('user',   '/user',   'show')
+        acl.grant('author',   '/article',   'post')
+
+        self.assertDictEqual(acl.__getstate__(), {
+            'roles': {'root','user','author'},
+            'struct': {
+                '/admin': {'enter'},
+                '/user': {'show'},
+                '/article': {'post'}
+            },
+            'grants': {
+                'root': { '/admin': {'enter'} },
+                'user': { '/user': {'show'} },
+                'author': { '/article': {'post'} }
+            }
+        })
+
+        acl2 = miracle.Acl()
+        acl2.__setstate__(acl.__getstate__())
+
+        self.assertDictEqual(
+            acl .__getstate__(),
+            acl2.__getstate__(),
         )

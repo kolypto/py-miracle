@@ -5,3 +5,6 @@ README.rst: README.md
 
 test:
 	@nosetests tests/*-test.py
+
+test3:
+	@nosetests3 tests/*-test.py

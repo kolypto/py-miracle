@@ -26,6 +26,15 @@ class Acl(object):
         self._roles.add(role)
         return self
 
+    def add_roles(self, roles):
+        """ Define multiple roles
+
+            :param roles: The roles to define
+            :rtype: Acl
+        """
+        self._roles.update(set(roles))
+        return self
+
     def add_resource(self, resource):
         """ Define a resource.
 
@@ -61,7 +70,7 @@ class Acl(object):
         """
         for resource, permissions in structure.items():
             for permission in permissions:
-                self.add_permission(resource, permission)
+                self._structure[resource].add(permission)
         return self
 
     #endregion
@@ -79,7 +88,7 @@ class Acl(object):
         return self
 
     def del_role(self, role):
-        """ Remove a role and its grants.
+        """ Remove a role. The grants remain.
 
             :param roles: Role to remove
             :rtype: Acl
@@ -90,7 +99,7 @@ class Acl(object):
         return self
 
     def del_resource(self, resource):
-        """ Remove a resource along with its grants and permissions
+        """ Remove a resource and its permissions. The grants remain.
 
             :param resource: Resource to remove
             :rtype: Acl
@@ -102,7 +111,7 @@ class Acl(object):
         return self
 
     def del_permission(self, resource, permission):
-        """ Remove a permission from the resource, along with its grants
+        """ Remove a permission from the resource. The grants remain.
 
             :param resource: The resource to remove the permission from
             :param permission: Permission to remove
@@ -172,6 +181,23 @@ class Acl(object):
         self.add_resource(resource)
         self.add_permission(resource, permission)
         self._grants.add((role, resource, permission))
+        return self
+
+    def grants(self, grants):
+        """ Add a structure of grants to the Acl
+
+            Input: { role: { resource: set(permissions) } }
+
+            :param grants: Grants structure to add
+            :rtype: Acl
+        """
+        for role, gs in grants.items():
+            self.add_role(role)
+            for resource, permissions in gs.items():
+                self.add_resource(resource)
+                for permission in permissions:
+                    self.add_permission(resource, permission)
+                    self._grants.add((role, resource, permission))
         return self
 
     def revoke(self, role, resource, permission):
@@ -325,13 +351,9 @@ class Acl(object):
         }
 
     def __setstate__(self, state):
-        for role in state['roles']:
-            self.add_role(role)
+        self.add_roles(state['roles'])
         self.add(state['struct'])
-        for role, gs in state['grants'].items():
-            for resource, permissions in gs.items():
-                for permission in permissions:
-                    self.grant(role, resource, permission)
+        self.grants(state['grants'])
         return self
 
     #endregion

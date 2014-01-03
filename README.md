@@ -30,6 +30,7 @@ Table of Contents
     * <a href="#acl">Acl</a>
     * <a href="#create">Create</a>
         * <a href="#add_rolerole">add_role(role)</a>
+        * <a href="#add_rolesroles">add_roles(roles)</a>
         * <a href="#add_resourceresource">add_resource(resource)</a>
         * <a href="#add_permissionresource-permission">add_permission(resource, permission)</a>
         * <a href="#addstructure">add(structure)</a>
@@ -102,6 +103,16 @@ acl.add_role('admin')
 acl.get_roles()  # -> {'admin'}
 ```
 
+### `add_roles(roles)`
+Define multiple roles
+
+* `roles`: An iterable of roles
+
+```python
+acl.add_roles(['admin', 'root'])
+acl.get_roles()  # -> {'admin', 'root'}
+```
+
 ### `add_resource(resource)`
 Define a resource.
 
@@ -172,6 +183,9 @@ The resource is not implicitly removed: it remains with an empty set of permissi
 ```python
 acl.remove_permission('blog', 'post')
 ```
+
+### `clear()`
+Remove all roles, resources, permissions and grants.
 
 Get
 ---
@@ -246,6 +260,22 @@ Roles, resources and permissions are implicitly created if missing.
 ```python
 acl.grant('admin', 'blog', 'delete')
 acl.grant('anonymous', 'page', 'view')
+```
+
+### `grants(grants)`
+Add a structure of grants to the Acl.
+
+* `grants`: A hash in the following form: `{ role: { resource: set(permission) } }`.
+
+```python
+acl.grants({
+    'admin': {
+        'blog': ['post'],
+    },
+    'anonymous': {
+        'page': ['view']
+    }
+})
 ```
 
 ### `revoke(role, resource, permission)`

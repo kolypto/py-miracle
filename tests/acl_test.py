@@ -4,7 +4,7 @@ import miracle
 
 class TestAclStructure(unittest.TestCase):
     def test_roles(self):
-        """ add_role(), list_roles(), del_role() """
+        """ add_role(), add_roles(), list_roles(), del_role() """
         acl = miracle.Acl()
 
         # Add roles
@@ -13,7 +13,7 @@ class TestAclStructure(unittest.TestCase):
         acl.add_role('superadmin') # does not replace or fail
         acl.add_role('user')
         acl.add_role('poweruser')
-        acl.add_role('n00b')
+        acl.add_roles(['n00b', 'poweruser'])
 
         # Test roles
         self.assertSetEqual(acl.get_roles(), {'root','superadmin','user','poweruser','n00b'})
@@ -128,13 +128,17 @@ class TestAclStructure(unittest.TestCase):
         self.assertSetEqual(acl.get_permissions('/profile'), {'edit'}) # empty ok
 
     def test_grant(self):
-        """ grant(), revoke(), show() """
+        """ grant(), grants(), revoke(), show() """
         acl = miracle.Acl()
         acl.grant('root', '/admin', 'enter')
         acl.grant('root', '/admin', 'enter') # dupe
-        acl.grant('user', '/article', 'view')
         acl.grant('root', '/article', 'edit')
-        acl.grant('user', '/admin', 'kill')
+        acl.grants({
+            'user': {
+                '/article': ['view'],
+                '/admin': ['kill']
+            }
+        })
         acl.revoke('user', '/admin', 'kill')
         acl.revoke('user', '/admin', 'kill') # dupe
 
@@ -254,3 +258,30 @@ class TestAclStructure(unittest.TestCase):
             acl .__getstate__(),
             acl2.__getstate__(),
         )
+
+    def test_del(self):
+        """ del_*() does not remove grants """
+        acl = miracle.Acl()
+        acl.grant('root', 'a', 'anything')
+        acl.grant('root', 'b', 'everything')
+        acl.grant('admin', 'b', 'something')
+        acl.grant('nobody', 'a', 'nothing')
+        acl.grant('nobody', 'c', 'nothing')
+
+        acl.del_permission('a', 'anything')
+        acl.del_role('root')
+        acl.del_resource('c')
+
+        self.assertDictEqual(acl.show(), {
+            'root': {
+                'a': {'anything'},
+                'b': {'everything'},
+            },
+            'admin': {
+                'b': {'something'},
+            },
+            'nobody': {
+                'a': {'nothing'},
+                'c': {'nothing'}
+            }
+        })

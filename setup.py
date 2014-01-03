@@ -2,12 +2,12 @@ from setuptools import setup
 
 setup(
     # http://pythonhosted.org/setuptools/setuptools.html
-    name='miracle',
+    name='miracle-acl',
     version='0.0.1',
     author='Mark Vartanyan',
     author_email='kolypto@gmail.com',
 
-    url='http://pypi.python.org/pypi/miracle/',
+    url='https://github.com/kolypto/py-miracle',
     license='MIT',
     description='Flexible role-based authorization solution that is a pleasure to use',
     long_description=open('README.rst').read(),

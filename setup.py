@@ -1,6 +1,8 @@
 from distutils.core import setup
 
-setup( # http://guide.python-distribute.org/creation.html
+setup(
+    # http://guide.python-distribute.org/creation.html
+    # http://docs.python.org/2/distutils/apiref.html
     name='miracle',
     version='0.0.1',
     author='Mark Vartanyan',

@@ -1,4 +1,6 @@
-# ===[ APP ]=== #
+# ===[ PACKAGE ]=== #
+
+/build/
 
 # ===[ OTHER ]=== #
 
@@ -27,6 +29,7 @@ coverage
 .coverage
 
 # Generated
+__pycache__
 *.pyc
 *.pyo
 *.pot

@@ -12,7 +12,7 @@ setup( # http://guide.python-distribute.org/creation.html
     long_description=open('README.rst').read(),
     keywords=['acl', 'rbac', 'authorization'],
 
-    packages=['miracle', 'miracle.tests'],
+    packages=['miracle'],
     scripts=[],
 
     install_requires=[

@@ -1,2 +1,2 @@
-include CHANGES.md LICENSE
+include CHANGES.md LICENSE.txt README.md
 recursive-include docs *.md

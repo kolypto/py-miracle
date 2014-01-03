@@ -18,7 +18,7 @@ setup( # http://guide.python-distribute.org/creation.html
     install_requires=[
     ],
     include_package_data=True,
-    test_suite='miracle.tests',
+    test_suite='tests',
 
     platforms='any',
     classifiers=[

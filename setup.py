@@ -1,15 +1,14 @@
-from distutils.core import setup
+from setuptools import setup
 
 setup(
-    # http://guide.python-distribute.org/creation.html
-    # http://docs.python.org/2/distutils/apiref.html
+    # http://pythonhosted.org/setuptools/setuptools.html
     name='miracle',
     version='0.0.1',
     author='Mark Vartanyan',
     author_email='kolypto@gmail.com',
 
     url='http://pypi.python.org/pypi/miracle/',
-    license='LICENSE.txt',
+    license='MIT',
     description='Flexible role-based authorization solution that is a pleasure to use',
     long_description=open('README.rst').read(),
     keywords=['acl', 'rbac', 'authorization'],

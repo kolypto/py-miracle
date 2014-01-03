@@ -38,6 +38,7 @@ Table of Contents
         * <a href="#remove_rolerole">remove_role(role)</a>
         * <a href="#remove_resourceresource">remove_resource(resource)</a>
         * <a href="#remove_permissionresource-permission">remove_permission(resource, permission)</a>
+        * <a href="#clear">clear()</a>
     * <a href="#get">Get</a>
         * <a href="#get_roles">get_roles()</a>
         * <a href="#get_resources">get_resources()</a>
@@ -47,6 +48,7 @@ Table of Contents
 * <a href="#authorize">Authorize</a>
     * <a href="#grant-permissions">Grant Permissions</a>
         * <a href="#grantrole-resource-permission">grant(role, resource, permission)</a>
+        * <a href="#grantsgrants">grants(grants)</a>
         * <a href="#revokerole-resource-permission">revoke(role, resource, permission)</a>
     * <a href="#check-permissions">Check Permissions</a>
         * <a href="#checkrole-resource-permission">check(role, resource, permission)</a>

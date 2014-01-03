@@ -21,6 +21,37 @@ Is a port of [miracle](https://github.com/kolypto/nodejs-miracle/) for NodeJS.
 Table of Contents
 =================
 
+* <a href="#reference">Reference</a>
+    * <a href="#define-the-structure">Define The Structure</a>
+        * <a href="#acl">Acl</a>
+        * <a href="#create">Create</a>
+            * <a href="#add_rolerole">add_role(role)</a>
+            * <a href="#add_resourceresource">add_resource(resource)</a>
+            * <a href="#add_permissionresource-permission">add_permission(resource, permission)</a>
+            * <a href="#addstructure">add(structure)</a>
+        * <a href="#remove">Remove</a>
+            * <a href="#remove_rolerole">remove_role(role)</a>
+            * <a href="#remove_resourceresource">remove_resource(resource)</a>
+            * <a href="#remove_permissionresource-permission">remove_permission(resource, permission)</a>
+        * <a href="#get">Get</a>
+            * <a href="#get_roles">get_roles()</a>
+            * <a href="#get_resources">get_resources()</a>
+            * <a href="#get_permissionsresource">get_permissions(resource)</a>
+            * <a href="#get-1">get()</a>
+        * <a href="#export-and-import">Export and Import</a>
+    * <a href="#grant-permissions">Grant Permissions</a>
+        * <a href="#grantrole-resource-permission">grant(role, resource, permission)</a>
+        * <a href="#revokerole-resource-permission">revoke(role, resource, permission)</a>
+    * <a href="#authorize">Authorize</a>
+        * <a href="#checkrole-resource-permission">check(role, resource, permission)</a>
+        * <a href="#check_anyroles-resource-permission">check_any(roles, resource, permission)</a>
+        * <a href="#check_allroles-resource-permission">check_all(roles, resource, permission)</a>
+    * <a href="#show-grants">Show Grants</a>
+        * <a href="#whichrole">which(role)</a>
+        * <a href="#which_anyroles">which_any(roles)</a>
+        * <a href="#which_allroles">which_all(roles)</a>
+        * <a href="#show">show()</a> 
+
 
 
 
@@ -242,6 +273,7 @@ Test whether *all* of the given roles have access to the resource with the speci
 * `roles`: An iterable of roles.
 
 When no roles are provided, returns False.
+
 
 
 Show Grants

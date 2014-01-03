@@ -12,24 +12,71 @@ force you to persist and does not insist on any formats or conventions.
 
 Maximum flexibility and total control. Enjoy! :)
 
-Is a port of `miracle <https://github.com/kolypto/nodejs-miracle/>`__
-for NodeJS.
+Highlights:
+
+-  Inspired by `miracle <https://github.com/kolypto/nodejs-miracle/>`__
+   for NodeJS ;
+-  Simple core
+-  No restrictions on authorization entities
+-  Unit-tested
 
 Table of Contents
 =================
 
-Reference
-=========
+-  Define The Structure
+
+   -  Acl
+   -  Create
+
+      -  add\_role(role)
+      -  add\_resource(resource)
+      -  add\_permission(resource, permission)
+      -  add(structure)
+
+   -  Remove
+
+      -  remove\_role(role)
+      -  remove\_resource(resource)
+      -  remove\_permission(resource, permission)
+
+   -  Get
+
+      -  get\_roles()
+      -  get\_resources()
+      -  get\_permissions(resource)
+      -  get()
+
+   -  Export and Import
+
+-  Authorize
+
+   -  Grant Permissions
+
+      -  grant(role, resource, permission)
+      -  revoke(role, resource, permission)
+
+   -  Check Permissions
+
+      -  check(role, resource, permission)
+      -  check\_any(roles, resource, permission)
+      -  check\_all(roles, resource, permission)
+
+   -  Show Grants
+
+      -  which(role)
+      -  which\_any(roles)
+      -  which\_all(roles)
+      -  show()
 
 Define The Structure
---------------------
+====================
 
 Acl
-~~~
+---
 
 To start using miracle, instantiate the ``Acl`` object:
 
-.. code:: js
+.. code:: python
 
     from acl import Acl
     acl = Acl()
@@ -40,7 +87,7 @@ manage them. When configured, you can check the access against the
 defined state.
 
 Create
-~~~~~~
+------
 
 Methods from this section allow you to build the *structure*: list of
 roles, resources and permissions.
@@ -52,40 +99,40 @@ resources and permissions that were not previously defined.
 Start with defining the *resources* and *permissions* on them, then you
 can grant a *role* with the access to some permissions on a resource.
 
-For roles, resources & permissions, any hashable object will do.
+For roles, resources & permissions, any hashable objects will do.
 
 ``add_role(role)``
-^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~
 
 Define a role.
 
 -  ``role``: the role to define.
 
 The role will have no permissions granted, but will appear in
-``list_roles()``.
+``get_roles()``.
 
-.. code:: js
+.. code:: python
 
     acl.add_role('admin')
-    acl.list_roles() // -> ['admin']
+    acl.get_roles()  # -> {'admin'}
 
 ``add_resource(resource)``
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Define a resource.
 
 -  ``resources``: the resource to define.
 
-The resource will have no permissions defined but will list in
-``list_resources()``.
+The resource will have no permissions defined but will appear in
+``get_resources()``.
 
-.. code:: js
+.. code:: python
 
     acl.add_resource('blog')
-    acl.list_resources() // -> ['blog']
+    acl.get_resources()  # -> {'blog'}
 
 ``add_permission(resource, permission)``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Define a permission on a resource.
 
@@ -94,22 +141,22 @@ Define a permission on a resource.
 -  ``permission``: the permission to define.
 
 The defined permission is not granted to anyone, but will appear in
-``list_permissions(resource)``.
+``get_permissions(resource)``.
 
-.. code:: js
+.. code:: python
 
     acl.add_permission('blog', 'post')
-    acl.list_permissions('blog') // -> ['post']
+    acl.get_permissions('blog')  # -> {'post'}
 
 ``add(structure)``
-^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~
 
-Define the whole resource/permission structure with a single object.
+Define the whole resource/permission structure with a single dict.
 
--  ``structure``: an object that maps resources to an iterable of
+-  ``structure``: a dict that maps resources to an iterable of
    permissions.
 
-.. code:: js
+.. code:: python
 
     acl.add({
         'blog': ['post'],
@@ -117,32 +164,32 @@ Define the whole resource/permission structure with a single object.
     })
 
 Remove
-~~~~~~
+------
 
 ``remove_role(role)``
-^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~
 
 Remove the role and its grants.
 
 -  ``role``: the role to remove.
 
-.. code:: js
+.. code:: python
 
     acl.remove_role('admin')
 
 ``remove_resource(resource)``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Remove the resource along with its grants and permissions.
 
 -  ``resource``: the resource to remove.
 
-.. code:: js
+.. code:: python
 
     acl.remove_resource('blog')
 
 ``remove_permission(resource, permission)``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Remove the permission from a resource.
 
@@ -152,203 +199,181 @@ Remove the permission from a resource.
 The resource is not implicitly removed: it remains with an empty set of
 permissions.
 
-.. code:: js
+.. code:: python
 
     acl.remove_permission('blog', 'post')
 
-List
-~~~~
+Get
+---
 
-``list_roles()``
-^^^^^^^^^^^^^^^^
+``get_roles()``
+~~~~~~~~~~~~~~~
 
-Get the list of defined roles.
+Get the set of defined roles.
 
-.. code:: js
+.. code:: python
 
-    acl.list_roles() // -> ['admin', 'anonymous', 'registered']
+    acl.get_roles()  # -> {'admin', 'anonymous', 'registered'}
 
-``list_resources()``
-^^^^^^^^^^^^^^^^^^^^
+``get_resources()``
+~~~~~~~~~~~~~~~~~~~
 
-Get the list of defined resources, including those with empty
-permissions list.
+Get the set of defined resources, including those with empty permissions
+set.
 
-.. code:: js
+.. code:: python
 
-    acl.list_resources() // -> ['blog', 'page', 'article']
+    acl.get_resources()  # -> {'blog', 'page', 'article'}
 
-``list_permissions(resource)``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+``get_permissions(resource)``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Get the list of permissions for a resource.
+Get the set of permissions for a resource.
 
--  ``resources``: resource[s] to get the permissions for. Optional.
+-  ``resource``: the resource to get the permissions for.
 
-.. code:: js
+.. code:: python
 
-    acl.list_permissions('page') // -> ['create', 'read', 'update', 'delete']
+    acl.get_permissions('page')  # -> {'create', 'read', 'update', 'delete'}
 
-``list()``
-^^^^^^^^^^
+``get()``
+~~~~~~~~~
 
 Get the *structure*: hash of all resources mapped to their permissions.
 
-Returns an object: ``{ resource: set(permission,...), ... }``.
+Returns a dict: ``{ resource: set(permission,...), ... }``.
 
-.. code:: js
+.. code:: python
 
-    acl.list(); // -> { blog: {'post'}, page: {'create', ...} }
+    acl.get()  # -> { blog: {'post'}, page: {'create', ...} }
 
 Export and Import
-~~~~~~~~~~~~~~~~~
+-----------------
 
-There's no single 'export everything' method: instead, you sequentially
-export the list of roles, the structure (resources and permissions), and
-the grants:
+The ``Acl`` class is picklable:
 
-.. code:: js
+.. code:: python
 
-    var miracle = require('miracle');
+    acl = miracle.Acl()
+    save = acl.__getstate__()
 
-    var acl = new miracle.Acl();
+    #...
 
-    // Export
-    var save = {
-        roles: acl.listRoles(),
-        struct: acl.list(),
-        grants: acl.show()
-    };
+    acl = miracle.Acl()
+    acl.__setstate__(save)
 
-    // Import
-    acl.addRole(save.roles);
-    acl.add(save.struct);
-    acl.grant(save.grants);
-
-Note: As the ``grant()`` method creates resources and roles implicitly,
-it's usually enough to export the grants. You'll only lose roles &
-resources with empty grants.
+Authorize
+=========
 
 Grant Permissions
 -----------------
 
-grant(roles, resources, permissions)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``grant(role, resource, permission)``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Grant permission[s] over resource[s] to the specified role[s].
+Grant a permission over resource to the specified role.
 
-Has multiple footprints:
-
--  ``grant(roles, resources, permissions)`` - grant the listed roles
-   with permissions to the listed resources ;
--  ``grant(roles, grants)`` - grant permissions using a grant object
-   that maps a list of permissions to a resource:
-   ``{ resource: [perm, ...] }``.
+-  ``role``: The role to grant the access to
+-  ``resource``: The resource to grant the access over
+-  ``permission``: The permission to grant with
 
 Roles, resources and permissions are implicitly created if missing.
 
-.. code:: js
+.. code:: python
 
-    acl.grant(['admin', 'manager'], 'blog', ['create', 'update']);
-    acl.grant('anonymous', { page: ['view'] });
+    acl.grant('admin', 'blog', 'delete')
+    acl.grant('anonymous', 'page', 'view')
 
-revoke(roles[, resources[, permissions]])
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``revoke(role, resource, permission)``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Revoke permission[s] over resource[s] from the specified role[s].
+Revoke a permission over a resource from the specified role.
 
-Has multiple footprints:
+.. code:: python
 
--  ``revoke(roles)`` remove grants from all resources ;
--  ``revoke(roles, resources)`` remove all grants from the listed
-   resources ;
--  ``revoke(roles, resources, permissions)`` remove specific grants from
-   the listed resources ;
--  ``revoke(roles, grants)`` - revoke grants using a grant object that
-   maps a list of permissions to a resource:
-   ``{ resource: [perm, ...], ... }``.
+    acl.revoke('anonymous', 'page', 'view')
+    acl.revoke('user', 'account', 'delete')
 
-No roles, resources or permissions are removed implicitly.
+Check Permissions
+-----------------
 
-.. code:: js
+``check(role, resource, permission)``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    acl.revoke('anonymous');
-    acl.revoke(['admin', 'manager'], 'blog', ['create', 'update']);
-    acl.revoke('anonymous', { page: ['view'] });
+Test whether the given role has access to the resource with the
+specified permission.
 
-Authorize
----------
-
-check(roles[, resources[, permissions]])
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Check whether the named role[s] have access to resource[s] with
-permission[s].
-
-Has multiple footprints:
-
--  ``check(roles, resources)``: check whether the role[s] have any
-   access to the named resource[s].
--  ``check(roles, resources, permissions)``: check with a specific set
-   of permissions.
--  ``check(roles, grants)``: check using a grants object.
-
-In order to pass the test, all roles must have access to all resources.
+-  ``role``: The role to check
+-  ``resource``: The protected resource
+-  ``permission``: The required permission
 
 Returns a boolean.
 
-.. code:: js
+.. code:: python
 
-    acl.check('admin', 'blog'); // -> true
-    acl.check(['anonymous'], 'blog', 'read'); // -> true
-    acl.check('registered', { page: ['update', 'delete'] });
+    acl.check('admin', 'blog') # True
+    acl.check('anonymous', 'page', 'delete') # -> False
 
-checkAny(roles[, resources[, permissions]])
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``check_any(roles, resource, permission)``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Same as ``check``, but the united permissions are checked.
+Test whether *any* of the given roles have access to the resource with
+the specified permission.
 
-In order to pass the test, any role having access to any resource is
-sufficient.
+-  ``roles``: An iterable of roles.
 
-Also supports the ``checkAny(roles, grants)`` footprint.
+When no roles are provided, returns False.
+
+``check_all(roles, resource, permission)``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Test whether *all* of the given roles have access to the resource with
+the specified permission.
+
+-  ``roles``: An iterable of roles.
+
+When no roles are provided, returns False.
 
 Show Grants
 -----------
 
-which(roles)
-~~~~~~~~~~~~
-
-Collect grants that each of the provided roles have (intersection).
-
-.. code:: js
-
-    acl.which('admin'); // -> { blog: ['post'] }
-
-whichAny(roles)
+``which(role)``
 ~~~~~~~~~~~~~~~
+
+Collect grants that the provided role has:
+
+.. code:: python
+
+    acl.which('admin')  # -> { blog: {'post'} }
+
+``which_any(roles)``
+~~~~~~~~~~~~~~~~~~~~
 
 Collect grants that any of the provided roles have (union).
 
-.. code:: js
+.. code:: python
 
-    acl.which(['anonymous', 'registered']); // -> { page: ['view'] }
+    acl.which(['anonymous', 'registered'])  # -> { page: ['view'] }
 
-show([roles])
-~~~~~~~~~~~~~
+``which_all(roles)``
+~~~~~~~~~~~~~~~~~~~~
 
-Get all grants for the specified roles.
+Collect grants that all of the provided roles have (intersection):
 
--  ``roles``: role[s] to get the grants for.
+.. code:: python
 
-Returns an object ``{ role: { resource: [perm, ...] } }``. Roles that
-were not defined are not mentioned in the result.
+    acl.which(['anonymous', 'registered'])  # -> { page: ['view'] }
 
-.. code:: js
+``show()``
+~~~~~~~~~~
 
-    acl.show(); // -> { admin: { blog: ['post'] } }
-    acl.show('admin');
-    acl.show(['admin', 'anonymous']);
+Get all current grants.
+
+Returns a dict ``{ role: { resource: set(permission) } }``.
+
+.. code:: python
+
+    acl.show()  # -> { admin: { blog: ['post'] } }
 
 .. |Build Status| image:: https://travis-ci.org/kolypto/py-miracle.png?branch=master
    :target: https://travis-ci.org/kolypto/py-miracle

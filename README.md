@@ -227,11 +227,13 @@ acl.__setstate__(save)
 
 
 
+Authorize
+=========
 
 Grant Permissions
-=================
+-----------------
 
-## `grant(role, resource, permission)`
+### `grant(role, resource, permission)`
 Grant a permission over resource to the specified role.
 
 * `role`: The role to grant the access to
@@ -245,7 +247,7 @@ acl.grant('admin', 'blog', 'delete')
 acl.grant('anonymous', 'page', 'view')
 ```
 
-## `revoke(role, resource, permission)`
+### `revoke(role, resource, permission)`
 Revoke a permission over a resource from the specified role.
 
 ```python
@@ -255,13 +257,10 @@ acl.revoke('user', 'account', 'delete')
 
 
 
+Check Permissions
+-----------------
 
-
-
-Authorize
-=========
-
-## `check(role, resource, permission)`
+### `check(role, resource, permission)`
 Test whether the given role has access to the resource with the specified permission.
 
 * `role`: The role to check
@@ -275,14 +274,14 @@ acl.check('admin', 'blog') # True
 acl.check('anonymous', 'page', 'delete') # -> False
 ```
 
-## `check_any(roles, resource, permission)`
+### `check_any(roles, resource, permission)`
 Test whether *any* of the given roles have access to the resource with the specified permission.
 
 * `roles`: An iterable of roles.
 
 When no roles are provided, returns False.
 
-## `check_all(roles, resource, permission)`
+### `check_all(roles, resource, permission)`
 Test whether *all* of the given roles have access to the resource with the specified permission.
 
 * `roles`: An iterable of roles.
@@ -292,30 +291,30 @@ When no roles are provided, returns False.
 
 
 Show Grants
-===========
+-----------
 
-## `which(role)`
+### `which(role)`
 Collect grants that the provided role has:
 
 ```python
 acl.which('admin')  # -> { blog: {'post'} }
 ```
 
-## `which_any(roles)`
+### `which_any(roles)`
 Collect grants that any of the provided roles have (union).
 
 ```python
 acl.which(['anonymous', 'registered'])  # -> { page: ['view'] }
 ```
 
-## `which_all(roles)`
+### `which_all(roles)`
 Collect grants that all of the provided roles have (intersection):
 
 ```python
 acl.which(['anonymous', 'registered'])  # -> { page: ['view'] }
 ```
 
-## `show()`
+### `show()`
 Get all current grants.
 
 Returns a dict  `{ role: { resource: set(permission) } }`.

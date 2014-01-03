@@ -66,7 +66,7 @@ Define The Structure
 ### Acl
 To start using miracle, instantiate the `Acl` object:
 
-```js
+```python
 from acl import Acl
 acl = Acl()
 ```
@@ -93,7 +93,7 @@ Define a role.
 
 The role will have no permissions granted, but will appear in `get_roles()`.
 
-```js
+```python
 acl.add_role('admin')
 acl.get_roles()  # -> {'admin'}
 ```
@@ -105,7 +105,7 @@ Define a resource.
 
 The resource will have no permissions defined but will appear in `get_resources()`.
 
-```js
+```python
 acl.add_resource('blog')
 acl.get_resources()  # -> {'blog'}
 ```
@@ -119,7 +119,7 @@ Define a permission on a resource.
 
 The defined permission is not granted to anyone, but will appear in `get_permissions(resource)`.
 
-```js
+```python
 acl.add_permission('blog', 'post')
 acl.get_permissions('blog')  # -> {'post'}
 ```
@@ -129,7 +129,7 @@ Define the whole resource/permission structure with a single dict.
 
 * `structure`: a dict that maps resources to an iterable of permissions.
 
-```js
+```python
 acl.add({
     'blog': ['post'],
     'page': {'create', 'read', 'update', 'delete'},
@@ -142,7 +142,7 @@ Remove the role and its grants.
 
 * `role`: the role to remove.
 
-```js
+```python
 acl.remove_role('admin')
 ```
 
@@ -151,7 +151,7 @@ Remove the resource along with its grants and permissions.
 
 * `resource`: the resource to remove.
 
-```js
+```python
 acl.remove_resource('blog')
 ```
 
@@ -163,7 +163,7 @@ Remove the permission from a resource.
 
 The resource is not implicitly removed: it remains with an empty set of permissions.
 
-```js
+```python
 acl.remove_permission('blog', 'post')
 ```
 
@@ -172,14 +172,14 @@ acl.remove_permission('blog', 'post')
 #### `get_roles()`
 Get the set of defined roles.
 
-```js
+```python
 acl.get_roles()  # -> {'admin', 'anonymous', 'registered'}
 ```
 
 #### `get_resources()`
 Get the set of defined resources, including those with empty permissions set.
 
-```js
+```python
 acl.get_resources()  # -> {'blog', 'page', 'article'}
 ```
 
@@ -188,7 +188,7 @@ Get the set of permissions for a resource.
 
 * `resource`: the resource to get the permissions for.
 
-```js
+```python
 acl.get_permissions('page')  # -> {'create', 'read', 'update', 'delete'}
 ```
 
@@ -197,14 +197,14 @@ Get the *structure*: hash of all resources mapped to their permissions.
 
 Returns a dict: `{ resource: set(permission,...), ... }`.
 
-```js
+```python
 acl.get()  # -> { blog: {'post'}, page: {'create', ...} }
 ```
 
 ### Export and Import
 The `Acl` class is picklable:
 
-```js
+```python
 acl = miracle.Acl()
 save = acl.__getstate__()
 
@@ -228,7 +228,7 @@ Grant a permission over resource to the specified role.
 
 Roles, resources and permissions are implicitly created if missing.
 
-```js
+```python
 acl.grant('admin', 'blog', 'delete')
 acl.grant('anonymous', 'page', 'view')
 ```
@@ -236,7 +236,7 @@ acl.grant('anonymous', 'page', 'view')
 ### revoke(role, resource, permission)
 Revoke a permission over a resource from the specified role.
 
-```js
+```python
 acl.revoke('anonymous', 'page', 'view')
 acl.revoke('user', 'account', 'delete')
 ```
@@ -255,7 +255,7 @@ Test whether the given role has access to the resource with the specified permis
 
 Returns a boolean.
 
-```js
+```python
 acl.check('admin', 'blog') # True
 acl.check('anonymous', 'page', 'delete') # -> False
 ```
@@ -282,21 +282,21 @@ Show Grants
 ### which(role)
 Collect grants that the provided role has:
 
-```js
+```python
 acl.which('admin')  # -> { blog: {'post'} }
 ```
 
 ### which_any(roles)
 Collect grants that any of the provided roles have (union).
 
-```js
+```python
 acl.which(['anonymous', 'registered'])  # -> { page: ['view'] }
 ```
 
 ### which_all(roles)
 Collect grants that all of the provided roles have (intersection):
 
-```js
+```python
 acl.which(['anonymous', 'registered'])  # -> { page: ['view'] }
 ```
 
@@ -305,6 +305,6 @@ Get all current grants.
 
 Returns a dict  `{ role: { resource: set(permission) } }`.
 
-```js
+```python
 acl.show()  # -> { admin: { blog: ['post'] } }
 ```

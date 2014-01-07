@@ -214,6 +214,16 @@ class Acl(object):
         self._grants.discard((role, resource, permission))
         return self
 
+    def revoke_all(self, role, resource=None):
+        """ Revoke all permissions from the specified role [over the specified resource]
+
+            :param role: The role to revoke all permissions from
+            :param resource: The resource to revoke the permissions from. Optional: revokes from all resources
+            :rtype: Acl
+        """
+        self._grants = { g for g in self._grants if not (g[0] == role and (resource is None or g[1] == resource)) }
+        return self
+
     #endregion
 
     #region Check

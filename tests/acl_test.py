@@ -128,7 +128,7 @@ class TestAclStructure(unittest.TestCase):
         self.assertSetEqual(acl.get_permissions('/profile'), {'edit'}) # empty ok
 
     def test_grant(self):
-        """ grant(), grants(), revoke(), show() """
+        """ grant(), grants(), revoke(), revoke_all(), show() """
         acl = miracle.Acl()
         acl.grant('root', '/admin', 'enter')
         acl.grant('root', '/admin', 'enter') # dupe
@@ -155,6 +155,24 @@ class TestAclStructure(unittest.TestCase):
                 '/admin': {'enter'},
                 '/article': {'edit'}
             },
+            'user': {
+                '/article':{'view'}
+            }
+        })
+
+        # revoke_all()
+        acl.revoke_all('root', '/article')
+        self.assertDictEqual(acl.show(), {
+            'root': {
+                '/admin': {'enter'}
+            },
+            'user': {
+                '/article':{'view'}
+            }
+        })
+
+        acl.revoke_all('root')
+        self.assertDictEqual(acl.show(), {
             'user': {
                 '/article':{'view'}
             }

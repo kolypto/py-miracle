@@ -50,6 +50,7 @@ Table of Contents
         * <a href="#grantrole-resource-permission">grant(role, resource, permission)</a>
         * <a href="#grantsgrants">grants(grants)</a>
         * <a href="#revokerole-resource-permission">revoke(role, resource, permission)</a>
+        * <a href="#revoke_allrole-resource">revoke_all(role[, resource])</a>
     * <a href="#check-permissions">Check Permissions</a>
         * <a href="#checkrole-resource-permission">check(role, resource, permission)</a>
         * <a href="#check_anyroles-resource-permission">check_any(roles, resource, permission)</a>
@@ -286,6 +287,15 @@ Revoke a permission over a resource from the specified role.
 ```python
 acl.revoke('anonymous', 'page', 'view')
 acl.revoke('user', 'account', 'delete')
+```
+
+### `revoke_all(role[, resource])`
+Revoke all permissions from the specified role for all resources.
+If the optional `resource` argument is provided - removes all permissions from the specified resource.
+
+```python
+acl.revoke_all('anonymous', 'page')  # revoke all permissions from a single resource
+acl.revoke_all('anonymous')  # revoke permissions from all resources
 ```
 
 

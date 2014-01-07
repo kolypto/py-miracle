@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
     # http://pythonhosted.org/setuptools/setuptools.html
     name='miracle-acl',
-    version='0.0.2',
+    version='0.0.3',
     author='Mark Vartanyan',
     author_email='kolypto@gmail.com',
 

@@ -29,6 +29,7 @@ Table of Contents
    -  Create
 
       -  add\_role(role)
+      -  add\_roles(roles)
       -  add\_resource(resource)
       -  add\_permission(resource, permission)
       -  add(structure)
@@ -38,6 +39,7 @@ Table of Contents
       -  remove\_role(role)
       -  remove\_resource(resource)
       -  remove\_permission(resource, permission)
+      -  clear()
 
    -  Get
 
@@ -53,7 +55,9 @@ Table of Contents
    -  Grant Permissions
 
       -  grant(role, resource, permission)
+      -  grants(grants)
       -  revoke(role, resource, permission)
+      -  revoke\_all(role[, resource])
 
    -  Check Permissions
 
@@ -115,6 +119,18 @@ The role will have no permissions granted, but will appear in
 
     acl.add_role('admin')
     acl.get_roles()  # -> {'admin'}
+
+``add_roles(roles)``
+~~~~~~~~~~~~~~~~~~~~
+
+Define multiple roles
+
+-  ``roles``: An iterable of roles
+
+.. code:: python
+
+    acl.add_roles(['admin', 'root'])
+    acl.get_roles()  # -> {'admin', 'root'}
 
 ``add_resource(resource)``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -203,6 +219,11 @@ permissions.
 
     acl.remove_permission('blog', 'post')
 
+``clear()``
+~~~~~~~~~~~
+
+Remove all roles, resources, permissions and grants.
+
 Get
 ---
 
@@ -284,6 +305,25 @@ Roles, resources and permissions are implicitly created if missing.
     acl.grant('admin', 'blog', 'delete')
     acl.grant('anonymous', 'page', 'view')
 
+``grants(grants)``
+~~~~~~~~~~~~~~~~~~
+
+Add a structure of grants to the Acl.
+
+-  ``grants``: A hash in the following form:
+   ``{ role: { resource: set(permission) } }``.
+
+.. code:: python
+
+    acl.grants({
+        'admin': {
+            'blog': ['post'],
+        },
+        'anonymous': {
+            'page': ['view']
+        }
+    })
+
 ``revoke(role, resource, permission)``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -293,6 +333,18 @@ Revoke a permission over a resource from the specified role.
 
     acl.revoke('anonymous', 'page', 'view')
     acl.revoke('user', 'account', 'delete')
+
+``revoke_all(role[, resource])``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Revoke all permissions from the specified role for all resources. If the
+optional ``resource`` argument is provided - removes all permissions
+from the specified resource.
+
+.. code:: python
+
+    acl.revoke_all('anonymous', 'page')  # revoke all permissions from a single resource
+    acl.revoke_all('anonymous')  # revoke permissions from all resources
 
 Check Permissions
 -----------------

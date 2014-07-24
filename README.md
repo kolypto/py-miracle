@@ -57,8 +57,8 @@ Table of Contents
         * <a href="#check_allroles-resource-permission">check_all(roles, resource, permission)</a>
     * <a href="#show-grants">Show Grants</a>
         * <a href="#which_permissionsrole-resource">which_permissions(role, resource)</a>
-        * <a href="#which_permissions_anyroles_resource">which_permissions_any(roles, resource)</a>
-        * <a href="#which_permissions_allroles_resource">which_permissions_all(roles, resource)</a>
+        * <a href="#which_permissions_anyroles-resource">which_permissions_any(roles, resource)</a>
+        * <a href="#which_permissions_allroles-resource">which_permissions_all(roles, resource)</a>
         * <a href="#whichrole">which(role)</a>
         * <a href="#which_anyroles">which_any(roles)</a>
         * <a href="#which_allroles">which_all(roles)</a>

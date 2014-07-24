@@ -1,4 +1,4 @@
-from collections import defaultdict, Iterable
+from collections import defaultdict
 
 
 class Acl(object):
@@ -17,11 +17,12 @@ class Acl(object):
     def add_role(self, role):
         """ Define a role.
 
-            :param role: Role to define.
-                Any hashable object will do
-            :rtype: Acl
-
             Existing roles are not overwritten nor duplicated.
+
+        :param role: Role to define.
+            Any hashable object will do.
+        :type role: str
+        :rtype: Acl
         """
         self._roles.add(role)
         return self
@@ -29,8 +30,11 @@ class Acl(object):
     def add_roles(self, roles):
         """ Define multiple roles
 
-            :param roles: The roles to define
-            :rtype: Acl
+        Existing roles are not overwritten nor duplicated.
+
+        :param roles: The roles to define
+        :type roles: list(str)
+        :rtype: Acl
         """
         self._roles.update(set(roles))
         return self
@@ -38,11 +42,12 @@ class Acl(object):
     def add_resource(self, resource):
         """ Define a resource.
 
-            :param resource: Resource to define.
-                For now, it will have an empty set of permissions
-            :rtype: Acl
-
             Existing resources are not overwritten nor duplicated
+
+        :param resource: Resource to define.
+            For now, it will have an empty set of permissions
+        :type resource: str
+        :rtype: Acl
         """
         if resource not in self._structure:
             self._structure[resource] = set()
@@ -51,12 +56,14 @@ class Acl(object):
     def add_permission(self, resource, permission):
         """ Define permission on a resource
 
-            :param resources: Resource to define the permission on.
-            :param permission: Permission to define.
-            :rtype: Acl
-
             The resource is created if missing.
             Existing permissions are not overwritten nor duplicated
+
+        :param resource: Resource to define the permission on.
+        :type resource: str
+        :param permission: Permission to define.
+        :type permission: str
+        :rtype: Acl
         """
         self._structure[resource].add(permission)
         return self
@@ -64,9 +71,9 @@ class Acl(object):
     def add(self, structure):
         """ Define the whole structure of resources and permissions
 
-            :type structure: dict
-            :param structure: A dict {resource: [permissions]}
-            :rtype: Acl
+        :param structure: A dict {resource: [permissions]}
+        :type structure: dict(list(str))
+        :rtype: Acl
         """
         for resource, permissions in structure.items():
             for permission in permissions:
@@ -81,6 +88,8 @@ class Acl(object):
         """ Clear the Acl completely
 
             This removes all roles, resources, permissions ans grants
+
+        :rtype: Acl
         """
         self._roles.clear()
         self._structure.clear()
@@ -90,10 +99,11 @@ class Acl(object):
     def del_role(self, role):
         """ Remove a role. The grants remain.
 
-            :param roles: Role to remove
-            :rtype: Acl
-
             Undefined roles are silently ignored
+
+        :param role: Role to remove
+        :type role: str
+        :rtype: Acl
         """
         self._roles.discard(role)
         self._grants = set([x for x in self._grants if x[0] != role])
@@ -102,10 +112,11 @@ class Acl(object):
     def del_resource(self, resource):
         """ Remove a resource and its permissions. The grants remain.
 
-            :param resource: Resource to remove
-            :rtype: Acl
-
             Undefined resources are silently ignored
+
+        :param resource: Resource to remove
+        :type resource: str
+        :rtype: Acl
         """
         if resource in self._structure:
             del self._structure[resource]
@@ -115,11 +126,13 @@ class Acl(object):
     def del_permission(self, resource, permission):
         """ Remove a permission from the resource. The grants remain.
 
-            :param resource: The resource to remove the permission from
-            :param permission: Permission to remove
-            :rtype: Acl
-
             Undefined resources and permissions are silently ignored
+
+        :param resource: The resource to remove the permission from
+        :type resource: str
+        :param permission: Permission to remove
+        :type permission: str
+        :rtype: Acl
         """
         if resource in self._structure:
             self._structure[resource].discard(permission)
@@ -131,24 +144,25 @@ class Acl(object):
     #region Get
 
     def get_roles(self):
-        """ Get the list of roles.
+        """ Get the set of roles.
 
-            :rtype: list
+        :rtype: set(str)
         """
         return set(self._roles)
 
     def get_resources(self):
-        """ Get the list of resources
+        """ Get the set of resources
 
-            :rtype: list
+        :rtype: set(str)
         """
         return set(self._structure.keys())
 
     def get_permissions(self, resource):
-        """ Get the list of permissions on a resource
+        """ Get the set of permissions on a resource
 
-            :param resource: The resource to list the permissions for
-            :rtype: list
+        :param resource: The resource to list the permissions for
+        :type resource: str
+        :rtype: set(str)
         """
         if resource not in self._structure:
             return set()
@@ -159,7 +173,7 @@ class Acl(object):
 
             Returns { resource: set(permission) }
 
-            :rtype: dict
+        :rtype: dict(set(str))
         """
         ret = {}
         for resource, permissions in self._structure.items():
@@ -175,10 +189,13 @@ class Acl(object):
 
             Missing entities are added to the structure
 
-            :param role: The role to grant the access to
-            :param resource: The resource to grant the access over
-            :param permission: The permission to grant with
-            :rtype: Acl
+        :param role: The role to grant the access to
+        :type role: str
+        :param resource: The resource to grant the access over
+        :type resource: str
+        :param permission: The permission to grant with
+        :type permission: str
+        :rtype: Acl
         """
         self.add_role(role)
         self.add_resource(resource)
@@ -191,8 +208,9 @@ class Acl(object):
 
             Input: { role: { resource: set(permissions) } }
 
-            :param grants: Grants structure to add
-            :rtype: Acl
+        :param grants: Grants structure to add
+        :type grants: dict(dict(set(str)))
+        :rtype: Acl
         """
         for role, gs in grants.items():
             self.add_role(role)
@@ -206,10 +224,13 @@ class Acl(object):
     def revoke(self, role, resource, permission):
         """ Revoke a permission over a resource from the specified role.
 
-            :param role: The role to modify
-            :param resource: The resource to modify
-            :param permission: The permission to revoke
-            :rtype: Acl
+        :param role: The role to modify
+        :type role: str
+        :param resource: The resource to modify
+        :type resource: str
+        :param permission: The permission to revoke
+        :type permission: str
+        :rtype: Acl
         """
         self._grants.discard((role, resource, permission))
         return self
@@ -217,9 +238,11 @@ class Acl(object):
     def revoke_all(self, role, resource=None):
         """ Revoke all permissions from the specified role [over the specified resource]
 
-            :param role: The role to revoke all permissions from
-            :param resource: The resource to revoke the permissions from. Optional: revokes from all resources
-            :rtype: Acl
+        :param role: The role to revoke all permissions from
+        :type role: str
+        :param resource: The resource to revoke the permissions from. Optional: revokes from all resources
+        :type resource: str
+        :rtype: Acl
         """
         self._grants = { g for g in self._grants if not (g[0] == role and (resource is None or g[1] == resource)) }
         return self
@@ -231,64 +254,115 @@ class Acl(object):
     def check(self, role, resource, permission):
         """ Test whether the given role has access to the resource with the specified permission.
 
-            :param role: The role to check the access for
-            :param resource: The resource to check the access for
-            :param permission: The permission to check the access with
-            :rtype: bool
+        :param role: The role to check the access for
+        :type role: str
+        :param resource: The resource to check the access for
+        :type resource: str
+        :param permission: The permission to check the access with
+        :type permission: str
+        :rtype: bool
         """
         return (role, resource, permission) in self._grants
 
     def check_any(self, roles, resource, permission):
         """ Test whether ANY of the given roles have access to the resource with the specified permission.
 
-            :param roles: Roles collection to check the access for
-            :param resource: The resource to check the access for
-            :param permission: The permission to check the access with
-            :rtype: bool
+        :param roles: Roles collection to check the access for
+        :type roles: list(str)
+        :param resource: The resource to check the access for
+        :type resource: str
+        :param permission: The permission to check the access with
+        :type permission: str
+        :rtype: bool
         """
         # No roles
-        if not roles or not isinstance(roles, Iterable):
+        if not roles:
             return False
 
         # Any
-        for role in roles:
-            if (role, resource, permission) in self._grants:
-                return True
-        return False
+        return any((role, resource, permission) in self._grants for role in roles)
 
     def check_all(self, roles, resource, permission):
         """ Test whether ALL of the given roles have access to the resource with the specified permission.
 
-            :param roles: Roles collection to check the access for
-            :param resource: The resource to check the access for
-            :param permission: The permission to check the access with
-            :rtype: bool
+        :param roles: Roles collection to check the access for
+        :type roles: list(str)
+        :param resource: The resource to check the access for
+        :type resource: str
+        :param permission: The permission to check the access with
+        :type permission: str
+        :rtype: bool
         """
         # No roles
-        if not roles or not isinstance(roles, Iterable):
+        if not roles:
             return False
 
         # all
-        for role in roles:
-            if not (role, resource, permission) in self._grants:
-                return False
-        return True
+        return all((role, resource, permission) in self._grants for role in roles)
 
     #endregion
 
     #region Show Grants
+
+    def which_permissions(self, role, resource):
+        """ List permissions that the provided role has over the resource
+
+        :param role: The role to list permissions for
+        :type role: str
+        :rtype: set(str)
+        """
+        return {permission for r, res, permission in self._grants if r == role and res == resource}
+
+    def which_permissions_any(self, roles, resource):
+        """ List permissions that any of the provided roles have over the resource
+
+        :param roles: Roles to list permissions for
+        :type roles: list(str)
+        :rtype: set(str)
+        """
+        if not roles:
+            return {}
+
+        # Collect permissions per role
+        roles = set(roles)
+        return {permission for r, res, permission in self._grants if r in roles and res == resource}
+
+    def which_permissions_all(self, roles, resource):
+        """ List permissions that all of the provided roles have over the resource
+
+        :param roles: Roles to list permissions for
+        :type roles: list(str)
+        :rtype: set(str)
+        """
+        if not roles:
+            return {}
+        roles = set(roles)
+
+        # Collect permissions per role
+        ppr = {
+            role: set(
+                permission
+                for r, res, permission in self._grants
+                if r == role and res == resource)
+            for role in roles
+        }
+
+        # Intersect them
+        return set.intersection(*ppr.values())
 
     def which(self, role):
         """ Collect grants that the provided role has
 
             Returns: { resource: set(permission) }
 
-            :param role: The role to show the grants for
-            :rtype: dict
+        :param role: The role to show the grants for
+        :type role: str
+        :rtype: dict(set(str))
         """
         ret = defaultdict(set)
-        for (r, resource, permission) in filter(lambda x: x[0] == role, self._grants):
-            ret[resource].add(permission)
+        for (r, resource, permission) in self._grants:
+            if r == role:
+                ret[resource].add(permission)
         return dict(ret)
 
     def which_any(self, roles):
@@ -296,17 +370,20 @@ class Acl(object):
 
             Returns: { resource: set(permission) }
 
-            :param roles: The roles to show the grants for
-            :rtype: dict
+        :param roles: The roles to show the grants for
+        :type roles: list(str)
+        :rtype: dict(set(str))
         """
         # No roles
-        if not roles or not isinstance(roles, Iterable):
+        roles = set(roles)
+        if not roles:
             return {}
 
         # Union
         ret = defaultdict(set)
-        for (r, resource, permission) in filter(lambda x: x[0] in roles, self._grants):
-            ret[resource].add(permission)
+        for (r, resource, permission) in self._grants:
+            if r in roles:
+                ret[resource].add(permission)
         return dict(ret)
 
     def which_all(self, roles):
@@ -314,11 +391,13 @@ class Acl(object):
 
             Returns: { resource: set(permission) }
 
-            :param roles: The roles to show the grants for
-            :rtype: dict
+        :param roles: The roles to show the grants for
+        :type roles: list(str)
+        :rtype: dict(set(str))
         """
         # No roles
-        if not roles or not isinstance(roles, Iterable):
+        roles = set(roles)
+        if not roles:
             return {}
 
         # Collect grants for each role
@@ -345,7 +424,7 @@ class Acl(object):
 
             Returns: { role: { resource: set(permission) } }
 
-            :rtype: dict
+        :rtype: dict(dict(set(str))
         """
         ret = defaultdict(lambda: defaultdict(set))
         for (role, resource, permission) in self._grants:

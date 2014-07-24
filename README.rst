@@ -67,6 +67,9 @@ Table of Contents
 
    -  Show Grants
 
+      -  which\_permissions(role, resource)
+      -  which\_permissions\_any(roles, resource)
+      -  which\_permissions\_all(roles, resource)
       -  which(role)
       -  which\_any(roles)
       -  which\_all(roles)
@@ -388,6 +391,33 @@ When no roles are provided, returns False.
 
 Show Grants
 -----------
+
+which\_permissions(role, resource)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+List permissions that the provided role has over the resource:
+
+.. code:: python
+
+    acl.which_permissions('admin', 'blog')  # -> {'post'}
+
+which\_permissions\_any(roles, resource)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+List permissions that any of the provided roles have over the resource:
+
+.. code:: python
+
+    acl.which_permissions_any(['anonymous', 'registered'], 'page')  # -> {'view'}
+
+which\_permissions\_all(roles, resource)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+List permissions that all of the provided roles have over the resource:
+
+.. code:: python
+
+    acl.which_permissions_all(['anonymous', 'registered'], 'page')  # -> {'view'}
 
 ``which(role)``
 ~~~~~~~~~~~~~~~

@@ -56,6 +56,9 @@ Table of Contents
         * <a href="#check_anyroles-resource-permission">check_any(roles, resource, permission)</a>
         * <a href="#check_allroles-resource-permission">check_all(roles, resource, permission)</a>
     * <a href="#show-grants">Show Grants</a>
+        * <a href="#which_permissionsrole-resource">which_permissions(role, resource)</a>
+        * <a href="#which_permissions_anyroles_resource">which_permissions_any(roles, resource)</a>
+        * <a href="#which_permissions_allroles_resource">which_permissions_all(roles, resource)</a>
         * <a href="#whichrole">which(role)</a>
         * <a href="#which_anyroles">which_any(roles)</a>
         * <a href="#which_allroles">which_all(roles)</a>
@@ -336,6 +339,29 @@ When no roles are provided, returns False.
 Show Grants
 -----------
 
+### which_permissions(role, resource)
+List permissions that the provided role has over the resource:
+
+```python
+acl.which_permissions('admin', 'blog')  # -> {'post'}
+```
+
+### which_permissions_any(roles, resource)
+List permissions that any of the provided roles have over the resource:
+
+```python
+acl.which_permissions_any(['anonymous', 'registered'], 'page')  # -> {'view'}
+```
+
+### which_permissions_all(roles, resource)
+List permissions that all of the provided roles have over the resource:
+
+```python
+acl.which_permissions_all(['anonymous', 'registered'], 'page')  # -> {'view'}
+```
+
+
+
 ### `which(role)`
 Collect grants that the provided role has:
 
@@ -356,6 +382,8 @@ Collect grants that all of the provided roles have (intersection):
 ```python
 acl.which(['anonymous', 'registered'])  # -> { page: ['view'] }
 ```
+
+
 
 ### `show()`
 Get all current grants.

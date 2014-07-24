@@ -192,6 +192,7 @@ class TestAclStructure(unittest.TestCase):
         acl.add_role('nobody')
 
         # which()
+        self.assertDictEqual(acl.which('???'), {})
         self.assertDictEqual(acl.which('root'), {
             '/admin': {'enter'},
             '/user': {'show','edit','delete'}
@@ -203,11 +204,9 @@ class TestAclStructure(unittest.TestCase):
         self.assertDictEqual(acl.which('user'), {
             '/user': {'show'}
         })
-        self.assertDictEqual(acl.which('nobody'), {
-        })
+        self.assertDictEqual(acl.which('nobody'), {})
 
         # which_any()
-        self.assertDictEqual(acl.which_any(True), {})
         self.assertDictEqual(acl.which_any([]), {})
         self.assertDictEqual(acl.which_any(['root', 'user']), acl.which('root'))
         self.assertDictEqual(acl.which_any(['admin', 'user']), acl.which('admin'))
@@ -215,12 +214,32 @@ class TestAclStructure(unittest.TestCase):
         self.assertDictEqual(acl.which_any(['user', 'nobody']), acl.which('user'))
 
         # which_all()
-        self.assertDictEqual(acl.which_all(True), {})
         self.assertDictEqual(acl.which_all([]), {})
         self.assertDictEqual(acl.which_all(['root', 'admin']), acl.which('admin'))
         self.assertDictEqual(acl.which_all(['admin', 'user']), acl.which('user'))
         self.assertDictEqual(acl.which_all(['root', 'nobody']), acl.which('nobody'))
         self.assertDictEqual(acl.which_all(['user', 'root', 'nobody']), acl.which('nobody'))
+
+        # which_permissions()
+        self.assertEqual(acl.which_permissions('???', '/admin'), set())
+        self.assertEqual(acl.which_permissions('root', '/???'), set())
+        self.assertEqual(acl.which_permissions('root', '/admin'), {'enter'})
+        self.assertEqual(acl.which_permissions('root', '/user'), {'edit', 'delete', 'show'})
+        self.assertEqual(acl.which_permissions('user', '/user'), {'show'})
+
+        # which_permissions_any()
+        self.assertEqual(acl.which_permissions_any([], '/admin'), {})
+        self.assertEqual(acl.which_permissions_any(['root', 'user'], '/user'), acl.which_permissions('root', '/user'))
+        self.assertEqual(acl.which_permissions_any(['admin', 'user'], '/user'), acl.which_permissions('admin', '/user'))
+        self.assertEqual(acl.which_permissions_any(['user'], '/user'), acl.which_permissions('user', '/user'))
+        self.assertEqual(acl.which_permissions_any(['user', 'nobody'], '/user'), acl.which_permissions('user', '/user'))
+
+        # which_permissions_all()
+        self.assertEqual(acl.which_permissions_all([], '/admin'), {})
+        self.assertEqual(acl.which_permissions_all(['root', 'user'], '/user'), acl.which_permissions('user', '/user'))
+        self.assertEqual(acl.which_permissions_all(['admin', 'user'], '/user'), acl.which_permissions('user', '/user'))
+        self.assertEqual(acl.which_permissions_all(['user'], '/user'), acl.which_permissions('user', '/user'))
+        self.assertEqual(acl.which_permissions_all(['user', 'nobody'], '/user'), acl.which_permissions('nobody', '/user'))
 
         # check()
         self.assertTrue(acl.check('root', '/admin', 'enter'))
@@ -230,7 +249,6 @@ class TestAclStructure(unittest.TestCase):
         self.assertTrue(acl.check('user', '/user', 'show'))
 
         # check_any()
-        self.assertFalse(acl.check_any(True, '/user', 'show'))
         self.assertFalse(acl.check_any([], '/user', 'show'))
         self.assertTrue(acl.check_any(['root'], '/user', 'show'))
         self.assertTrue(acl.check_any(['root','user'], '/user', 'show'))
@@ -239,7 +257,6 @@ class TestAclStructure(unittest.TestCase):
         self.assertFalse(acl.check_any(['admin','user'], '/user', 'delete'))
 
         # check_all()
-        self.assertFalse(acl.check_all(True, '/user', 'show'))
         self.assertFalse(acl.check_all([], '/user', 'show'))
         self.assertTrue(acl.check_all(['root','user'], '/user', 'show'))
         self.assertFalse(acl.check_all(['root','user'], '/admin', 'enter'))

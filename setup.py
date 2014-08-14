@@ -1,11 +1,11 @@
 #! /usr/bin/env python
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     # http://pythonhosted.org/setuptools/setuptools.html
     name='miracle-acl',
-    version='0.0.4-0',
+    version='0.0.4-1',
     author='Mark Vartanyan',
     author_email='kolypto@gmail.com',
 
@@ -15,12 +15,17 @@ setup(
     long_description=open('README.rst').read(),
     keywords=['acl', 'rbac', 'authorization'],
 
-    packages=['miracle'],
+    packages=find_packages(),
     scripts=[],
+    entry_points={},
 
     install_requires=[
     ],
+    extras_require={
+        '_dev': ['wheel', 'nose'],
+    },
     include_package_data=True,
+    test_suite='nose.collector',
 
     platforms='any',
     classifiers=[

@@ -5,6 +5,6 @@ python:
   - "3.4"
 
 install:
-  - "pip install ."
+  - "pip install -e '.[_dev]'"
 
 script: nosetests

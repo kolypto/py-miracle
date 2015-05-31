@@ -85,7 +85,7 @@ To start using miracle, instantiate the ``Acl`` object:
 
 .. code:: python
 
-    from acl import Acl
+    from miracle import Acl
     acl = Acl()
 
 The ``Acl`` object keeps track of your *resources* and *permissions*

@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+""" Flexible role-based authorization solution that is a pleasure to use """
 
 from setuptools import setup, find_packages
 
@@ -11,8 +12,9 @@ setup(
 
     url='https://github.com/kolypto/py-miracle',
     license='MIT',
-    description='Flexible role-based authorization solution that is a pleasure to use',
-    long_description=open('README.rst').read(),
+    description=__doc__,
+    long_description=open('README.md').read(),
+    long_description_content_type='text/markdown',
     keywords=['acl', 'rbac', 'authorization'],
 
     packages=find_packages(),
@@ -21,9 +23,7 @@ setup(
 
     install_requires=[
     ],
-    extras_require={
-        '_dev': ['wheel', 'nose'],
-    },
+    extras_require={},
     include_package_data=True,
     test_suite='nose.collector',
 

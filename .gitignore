@@ -1,8 +1,10 @@
-# ===[ PACKAGE ]=== #
+# ===[ APP ]=== #
 
+# ===[ PYTHON PACKAGE ]=== #
 /build/
 /dist/
 /MANIFEST
+/*.egg/
 /*.egg-info/
 
 # ===[ OTHER ]=== #
@@ -11,8 +13,6 @@
 .idea
 .nbproject
 .project
-nbproject
-project
 *.sublime-project
 
 # Temps
@@ -21,19 +21,24 @@ project
 *.bak
 *.swp
 *.kate-swp
-*.lock
 *.DS_Store
 Thumbs.db
 
 # Utils
+/.tox/
 .sass-cache/
-code_coverage
-coverage
 .coverage
 
 # Generated
 __pycache__
-*.pyc
-*.pyo
+*.py[cod]
 *.pot
 *.mo
+
+# Runtime
+/*.log
+/*.pid
+
+# ===[ EXCLUDES ]=== #
+!.gitkeep
+!.htaccess

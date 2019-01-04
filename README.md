@@ -77,7 +77,7 @@ Acl
 To start using miracle, instantiate the `Acl` object:
 
 ```python
-from acl import Acl
+from miracle import Acl
 acl = Acl()
 ```
 

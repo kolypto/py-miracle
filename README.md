@@ -27,6 +27,7 @@ Highlights:
 Table of Contents
 =================
 
+* <a href="#installation">Installation</a>
 * <a href="#define-the-structure">Define The Structure</a>
     * <a href="#acl">Acl</a>
     * <a href="#create">Create</a>
@@ -69,6 +70,15 @@ Table of Contents
 
 
 
+
+Installation
+============
+
+With pip:
+
+```bash
+$ pip install miracle-acl
+```
 
 Define The Structure
 ====================
